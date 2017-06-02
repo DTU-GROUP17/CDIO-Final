@@ -75,18 +75,7 @@
         </nav>
 
         <!-- Page Content -->
-        <div id="page-wrapper">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <h1 class="page-header">Blank</h1>
-                    </div>
-                    <!-- /.col-lg-12 -->
-                </div>
-                <!-- /.row -->
-            </div>
-            <!-- /.container-fluid -->
-        </div>
+        <div id="page-wrapper"></div>
         <!-- /#page-wrapper -->
 
     </div>
@@ -113,6 +102,7 @@
 
             var sidebar = new Sidebar($('#side-menu'));
             sidebar.show(user);
+            $("#page-wrapper").load('dashboard.html');
         });
     </script>
 </body>
