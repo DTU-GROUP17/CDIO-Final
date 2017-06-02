@@ -93,16 +93,28 @@
     <!-- Custom Theme JavaScript -->
     <script src="../dist/js/sb-admin-2.js"></script>
 
+    <script src="../vendor/js-cookie/js.cookie.js"></script>
+
     <script src="../js/sidebar.js"></script>
     <script src="../js/User.js"></script>
 
     <script>
         $(function(){
-            var user = new User('1234');
+            const sidebar = new Sidebar($('#side-menu'));
 
-            var sidebar = new Sidebar($('#side-menu'));
-            sidebar.render(user);
-            $("#page-wrapper").load('dashboard.html');
+            if(user.token !== null) {
+                user.load().then(() => {
+                    sidebar.render(user);
+                    $("#page-wrapper").load('dashboard.html');
+                    console.log(user);
+                }).catch(() => {
+                    window.location.href = "login.html";
+                });
+            }
+            else {
+                window.location.href = "login.html";
+            }
+
         });
     </script>
 </body>

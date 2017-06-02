@@ -13,7 +13,7 @@ function Sidebar (element) {
      * @param {User} user
      */
     this.render = function(user) {
-        var menus = this.menu.dashboard;
+        let menus = this.menu.dashboard;
 
         if(user.hasRole('Admin')) {
             menus += this.menu.users + this.menu.weights;
