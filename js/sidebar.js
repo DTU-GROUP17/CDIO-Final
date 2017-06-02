@@ -34,6 +34,7 @@ function Sidebar (element) {
         this.item = function(text, icon, url) {
             return "<li><a href='"+url+".html'><i class='fa "+icon+" fa-fw'></i>"+text+"</a></li>";
         };
+        
 
         this.dashboard = this.item('Dashboard', 'fa-dashboard', 'index');
         this.users = this.item('Users', 'fa-user', 'users');
