@@ -16,7 +16,6 @@ class User {
         return false;
     }
 
-
     /**
      *
      * @param token
@@ -29,7 +28,7 @@ class User {
 
         return new Promise((resolve, reject) => {
             $.ajax({
-                url: 'http://localhost:9998/self',
+                url: Setting.baseURI+'self',
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 'beforeSend': function (request) {
@@ -49,7 +48,7 @@ class User {
     static all(token = null) {
         return new Promise((resolve, reject) => {
             $.ajax({
-                url: 'http://localhost:9998/users',
+                url: Setting.baseURI+'users',
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 'beforeSend': function (request) {
@@ -79,7 +78,7 @@ class User {
         return new Promise((resolve, reject) => {
             $.ajax({
                 type: "POST",
-                url: 'http://localhost:9998/authentication/login',
+                url: Setting.baseURI+'authentication/login',
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 data: JSON.stringify({
@@ -88,13 +87,15 @@ class User {
                 })
             })
                 .done(function(data) {
+                    console.log('done');
                     Cookies.set('token', data.message);
                     resolve(data.message);
                 })
                 .fail(function() {
+                    console.log('failed');
                     reject("User login failed!");
                 });
         });
 
     }
-};
+}

@@ -100,6 +100,7 @@
 
     <script src="../vendor/js-cookie/js.cookie.js"></script>
 
+    <script src="../js/Classes/Setting.js"></script>
     <script src="../js/Classes/Sidebar.js"></script>
     <script src="../js/Classes/Role.js"></script>
     <script src="../js/Classes/User.js"></script>
@@ -107,11 +108,14 @@
 
 
     <script>
+        let currentUser = null;
+
         $(function(){
             const sidebar = new Sidebar($('#side-menu'));
 
             User.loadUserFromToken().then((user) => {
-                sidebar.render(user);
+                currentUser = user;
+                sidebar.render();
                 $("#page-wrapper").load('dashboard.html');
             }).catch(() => {
                 window.location.href = "login.html";

@@ -60,18 +60,19 @@
 
 <script src="../vendor/js-cookie/js.cookie.js"></script>
 
+<script src="../js/Classes/Setting.js"></script>
 <script src="../js/Classes/User.js"></script>
 <script>
     $(function(){
         $("#loginForm").submit(function(event) {
-            $("#submitButton").prop("disabled",true);
+            $("#submitButton").prop("disabled",true).addClass('disabled');
             let data = $('#loginForm').serializeArray();
             User.login(data[0].value, data[1].value).then(() => {
                 window.location.href = "index.html";
             })
             .catch(() => {
                 $("#failed").show();
-                $("#submitButton").prop("disabled",false);
+                $("#submitButton").prop("disabled",false).removeClass('disabled');
             });
             event.preventDefault();
         });

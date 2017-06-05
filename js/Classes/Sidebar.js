@@ -12,7 +12,11 @@ function Sidebar (element) {
      *
      * @param {User} user
      */
-    this.render = function(user) {
+    this.render = function(user = null) {
+        if(user === null) {
+            user = currentUser;
+        }
+
         let menus = this.menu.dashboard;
 
         if(user.hasRole('Admin')) {
