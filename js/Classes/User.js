@@ -2,7 +2,7 @@ const user = {
     token: Cookies.get('token'),
     id: null,
     name: "First Last",
-    roles: ['Admin', 'Lab technician', 'Foreman', 'Pharmaceud'],
+    roles: [],
 
     hasRole: function (role) {
         for (let i = 0; i < this.roles.length; i++) {

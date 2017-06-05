@@ -10,7 +10,7 @@ function Sidebar (element) {
     /**
      * Run this method for render the sidebar
      *
-     * @param {User} user
+     * @param {user} user
      */
     this.render = function(user) {
         let menus = this.menu.dashboard;
