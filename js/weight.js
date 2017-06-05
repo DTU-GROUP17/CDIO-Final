@@ -70,22 +70,22 @@ function initTable() {
 
                 "data": "updated_at",
                 "render": function (data, type, full) {
-                    return '<input type="text" class="form-control" id="uri' + full.id + '" value="' + data + '" onchange="changeUser(\'' + full.id + '\', \'userName\')">';
+                    return '<input type="text" class="form-control" id="updated_at' + full.id + '" value="' + data + '" onchange="changeUser(\'' + full.id + '\', \'updated_at\')">';
                 },
 
                 "data": "updated_by",
                 "render": function (data, type, full) {
-                    return '<input type="text" class="form-control" id="uri' + full.id + '" value="' + data + '" onchange="changeUser(\'' + full.id + '\', \'userName\')">';
+                    return '<input type="text" class="form-control" id="updated_by' + full.id + '" value="' + data + '" onchange="changeUser(\'' + full.id + '\', \'updated_by\')">';
                 },
 
                 "data": "deleted_at",
                 "render": function (data, type, full) {
-                    return '<input type="text" class="form-control" id="uri' + full.id + '" value="' + data + '" onchange="changeUser(\'' + full.id + '\', \'userName\')">';
+                    return '<input type="text" class="form-control" id="deleted_at' + full.id + '" value="' + data + '" onchange="changeUser(\'' + full.id + '\', \'deleted_at\')">';
                 },
 
                 "data": "deleted_by",
                 "render": function (data, type, full) {
-                    return '<input type="text" class="form-control" id="uri' + full.id + '" value="' + data + '" onchange="changeUser(\'' + full.id + '\', \'userName\')">';
+                    return '<input type="text" class="form-control" id="deleted_by' + full.id + '" value="' + data + '" onchange="changeUser(\'' + full.id + '\', \'deleted_by\')">';
                 },
 
             },
