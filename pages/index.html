@@ -15,11 +15,9 @@
     <link href="../vendor/metisMenu/metisMenu.min.css" rel="stylesheet">
 
     <!-- Custom CSS -->
-    <link href="../vendor/jtable/themes/metro/blue/jtable.min.css" rel="stylesheet" type="text/css" />
     <link href="../dist/css/sb-admin-2.css" rel="stylesheet">
     <link href="../dist/css/main.css" rel="stylesheet">
-    <link href="../vendor/datatables/css/dataTables.bootstrap.min.css">
-    <link href="../vendor/datatables-responsive/dataTables.responsive.js">
+
     <!-- Custom Fonts -->
     <link href="../vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
 
@@ -84,8 +82,9 @@
 
     <!-- jQuery -->
 
-    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
+    <script src="../vendor/jquery/jquery.min.js"></script>
+    <script src="../vendor/jquery-ui/jquery-ui.min.js"></script>
 
     <!-- Bootstrap Core JavaScript -->
     <script src="../vendor/bootstrap/js/bootstrap.min.js"></script>
@@ -96,34 +95,27 @@
     <!-- Custom Theme JavaScript -->
     <script src="../dist/js/sb-admin-2.js"></script>
 
-    <!-- Datatables -->
-    <script src="../vendor/datatables/js/jquery.dataTables.min.js"></script>
-    <script src="../vendor/datatables/js/dataTables.bootstrap.min.js"></script>
-    <script src="../vendor/datatables-responsive/dataTables.responsive.js"></script>
+    <!-- JTable -->
+    <script src="../vendor/jtable/jquery.jtable.js" type="text/javascript"></script>
 
     <script src="../vendor/js-cookie/js.cookie.js"></script>
 
     <script src="../js/Classes/Sidebar.js"></script>
+    <script src="../js/Classes/Role.js"></script>
     <script src="../js/Classes/User.js"></script>
 
-    <script src="../vendor/jtable/jquery.jtable.js" type="text/javascript"></script>
+
 
     <script>
         $(function(){
             const sidebar = new Sidebar($('#side-menu'));
 
-            if(user.token !== null) {
-                user.load().then(() => {
-                    sidebar.render(user);
-                    $("#page-wrapper").load('dashboard.html');
-                }).catch(() => {
-                    window.location.href = "login.html";
-                });
-            }
-            else {
+            User.loadUserFromToken().then((user) => {
+                sidebar.render(user);
+                $("#page-wrapper").load('dashboard.html');
+            }).catch(() => {
                 window.location.href = "login.html";
-            }
-
+            });
         });
     </script>
 </body>
