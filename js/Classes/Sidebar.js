@@ -6,11 +6,14 @@
  */
 function Sidebar (element) {
     this.element = element;
+
     /**
-     * @param {User} user
+     * Run this method for render the sidebar
+     *
+     * @param {user} user
      */
-    this.show = function(user) {
-        var menus = this.menu.dashboard;
+    this.render = function(user) {
+        let menus = this.menu.dashboard;
 
         if(user.hasRole('Admin')) {
             menus += this.menu.users + this.menu.weights;
@@ -28,16 +31,22 @@ function Sidebar (element) {
         this.element.html(menus);
     };
 
-
-
+    /**
+     * This object contains all the methods for the menus to the different menus we got in the system.
+     */
     this.menu = new function() {
+        /**
+         * This method is used for generating the html needed for the buttons in th sidebar.
+         * @param text
+         * @param icon
+         * @param url
+         * @returns {string}
+         */
         this.item = function(text, icon, url) {
-
-            //"+url+".html
             return "<li><a onclick='$(\"#page-wrapper\").load(\""+url+".html\")'><i class='fa "+icon+" fa-fw'></i>"+text+"</a></li>";
         };
 
-        this.dashboard = this.item('Dashboard', 'fa-dashboard', 'index');
+        this.dashboard = this.item('Dashboard', 'fa-dashboard', 'dashboard');
         this.users = this.item('Users', 'fa-user', 'users');
         this.weights = this.item('Weights', 'fa-tablet', 'weights');
         this.batches = this.item('Batches', 'fa-barcode', 'batches');

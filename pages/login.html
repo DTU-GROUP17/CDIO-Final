@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Lost Health&#8482;</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="../vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="../vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+    <!-- Custom styles for this template -->
+    <style>
+        body {
+            background-color: #f9f9f9;
+        }
+    </style>
+
+</head>
+
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-lg-4 col-lg-offset-4">
+            <h2 class="text-center">Please sign in</h2>
+        </div>
+    </div>
+    <div id="failed" class="alert alert-danger" style="display: none">
+        <strong>Failed!</strong> Invalid username or password.
+    </div>
+    <form id="loginForm">
+        <div class="row">
+            <div class="col-lg-4 col-lg-offset-4">
+                <input name="userName" type="text" class="form-control" required autofocus placeholder="Username"/>
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-lg-4 col-lg-offset-4">
+                <input name="password" type="password" class="form-control" required placeholder="Password"/>
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-lg-4 col-lg-offset-4">
+                <button id="submitButton" type="submit" style="width: 100%;" class="btn btn-lg btn-success pull-left">Log in</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- jQuery -->
+<script src="../vendor/jquery/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="../vendor/bootstrap/js/bootstrap.min.js"></script>
+
+<script src="../vendor/js-cookie/js.cookie.js"></script>
+
+<script src="../js/Classes/User.js"></script>
+<script>
+    $(function(){
+        $("#loginForm").submit(function(event) {
+            $("#submitButton").prop("disabled",true);
+            let data = $('#loginForm').serializeArray();
+            user.login(data[0].value, data[1].value).then(() => {
+                window.location.href = "index.html";
+            })
+            .catch(() => {
+                $("#failed").show();
+                $("#submitButton").prop("disabled",false);
+            });
+            event.preventDefault();
+        });
+    });
+</script>
+</body>
+</html>
