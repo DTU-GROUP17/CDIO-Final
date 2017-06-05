@@ -19,14 +19,14 @@ function getCookie(cname) {
     return "";
 }
 /*
-$(document).ready(function() {
-    $('#table_weight').DataTable( {
-        "processing": true,
-        "serverSide": true,
-        "ajax": "link" //Link should update
+ $(document).ready(function() {
+ $('#table_weight').DataTable( {
+ "processing": true,
+ "serverSide": true,
+ "ajax": "link" //Link should update
 
-    } );
-} );*/
+ } );
+ } );*/
 
 
 function initTable() {

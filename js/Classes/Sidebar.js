@@ -19,7 +19,7 @@ function Sidebar (element) {
             menus += this.menu.users + this.menu.weights;
         }
         if(user.hasRole('Pharmaceud')) {
-            menus += this.menu.recipes + this.menu.suppliers;
+            menus += this.menu.recipes + this.menu.suppliers + this.menu.materials;
         }
         if(user.hasRole('Foreman')) {
             menus += this.menu.batches + this.menu.materials;
