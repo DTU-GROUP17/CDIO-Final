@@ -18,15 +18,53 @@ function getCookie(cname) {
     }
     return "";
 }
-/*
-$(document).ready(function() {
-    $('#table_weight').DataTable( {
-        "processing": true,
-        "serverSide": true,
-        "ajax": "link" //Link should update
 
-    } );
-} );*/
+function deleteRecord() {
+    $.ajax({
+        'beforeSend': function (request) {
+            request.setRequestHeader("Authorization", "Bearer " + getCookie("token"));
+        },
+        'url': url,  // Need to set Url
+        'type': 'DELETE',
+        contentType: 'application/json; charset=utf-8',
+    })
+        .done(function (data) {
+            window.location.replace(log_out);
+        })
+        .fail(function(data) {
+            console.log("???"); // PLZ DO not delete, master comment fixer???! WTF DUDE!!!!!
+            if(data.status !== 200) {
+                alert("failed deleting user!");
+            }
+            window.location.replace(log_out);
+        });
+}
+
+function changeRecord(record_id, type) {
+    var val = $('#'+type+'_'+record_id).val();
+
+    var data  = {};
+    data[type] = val;
+
+    $.ajax({
+        'beforeSend': function (request) {
+            request.setRequestHeader("Authorization", "Bearer " + getCookie("token"));
+        },
+        'url': urlUser,  // Url should change
+        'type': 'PATCH',
+        'data': JSON.stringify(data),
+        contentType: 'application/json; charset=utf-8',
+    }).done(function(data) {
+    })
+        .fail(function(data) {
+            if(data.status !== 200) {
+                alert("failed updating record!");
+            }
+            if(type === "id") {   //check id ??!!
+                window.location.replace(log_out);
+            }
+        });
+}
 
 
 function initTable() {
@@ -49,60 +87,49 @@ function initTable() {
                 // https://datatables.net/manual/data/renderers
                 "data": "name",
                 "render": function (data, type, full) {
-                    return '<input type="text" class="form-control" id="name' + full.id + '" value="' + data + '" onchange="changeUser(\'' + full.id + '\', \'name\')">';
+                    return '<input type="text" class="form-control" id="name' + full.id + '" value="' + data + '" onchange="changeRecord(\'' + full.id + '\', \'name\')">';
                 },
             },
             {
                 "data": "uri",
                 "render": function (data, type, full) {
-                    return '<input type="text" class="form-control" id="uri' + full.id + '" value="' + data + '" onchange="changeUser(\'' + full.id + '\', \'uri\')">';
+                    return '<input type="text" class="form-control" id="uri' + full.id + '" value="' + data + '" onchange="changeRecord(\'' + full.id + '\', \'uri\')">';
                 },
 
                 "data": "created_at",
                 "render": function (data, type, full) {
-                    return '<input type="text" class="form-control" id="created_at' + full.id + '" value="' + data + '" onchange="changeUser(\'' + full.id + '\', \'created_at\')">';
+                    return '<input type="text" class="form-control" id="created_at' + full.id + '" value="' + data + '" onchange="changeRecord(\'' + full.id + '\', \'created_at\')">';
                 },
 
                 "data": "created_by",
                 "render": function (data, type, full) {
-                    return '<input type="text" class="form-control" id="created_by' + full.id + '" value="' + data + '" onchange="changeUser(\'' + full.id + '\', \'created_by\')">';
+                    return '<input type="text" class="form-control" id="created_by' + full.id + '" value="' + data + '" onchange="changeRecord(\'' + full.id + '\', \'created_by\')">';
                 },
 
                 "data": "updated_at",
                 "render": function (data, type, full) {
-                    return '<input type="text" class="form-control" id="updated_at' + full.id + '" value="' + data + '" onchange="changeUser(\'' + full.id + '\', \'updated_at\')">';
+                    return '<input type="text" class="form-control" id="updated_at' + full.id + '" value="' + data + '" onchange="changeRecord(\'' + full.id + '\', \'updated_at\')">';
                 },
 
                 "data": "updated_by",
                 "render": function (data, type, full) {
-                    return '<input type="text" class="form-control" id="updated_by' + full.id + '" value="' + data + '" onchange="changeUser(\'' + full.id + '\', \'updated_by\')">';
+                    return '<input type="text" class="form-control" id="updated_by' + full.id + '" value="' + data + '" onchange="changeRecord(\'' + full.id + '\', \'updated_by\')">';
                 },
 
                 "data": "deleted_at",
                 "render": function (data, type, full) {
-                    return '<input type="text" class="form-control" id="deleted_at' + full.id + '" value="' + data + '" onchange="changeUser(\'' + full.id + '\', \'deleted_at\')">';
+                    return '<input type="text" class="form-control" id="deleted_at' + full.id + '" value="' + data + '" onchange="changeRecord(\'' + full.id + '\', \'deleted_at\')">';
                 },
 
                 "data": "deleted_by",
                 "render": function (data, type, full) {
-                    return '<input type="text" class="form-control" id="deleted_by' + full.id + '" value="' + data + '" onchange="changeUser(\'' + full.id + '\', \'deleted_by\')">';
+                    return '<input type="text" class="form-control" id="deleted_by' + full.id + '" value="' + data + '" onchange="changeRecord(\'' + full.id + '\', \'deleted_by\')">';
                 },
 
             },
             {
-                "data": "roles",
                 "render": function (data, type, full) {
-                    return '<select class="selectpicker" id="roles_' + full.id + '" multiple><option>admin</option><option>user</option></select>';
-                }
-            },
-            {
-                "render": function (data, type, full) {
-                    return '<input type="password" class="form-control" id="password_' + full.id + '" placeholder="********" onchange="changeUser(\'' + full.id + '\', \'password\')">';
-                }
-            },
-            {
-                "render": function (data, type, full) {
-                    return '<button type="button" class="btn btn-xs btn-danger" onclick="deleteUser(\'' + full.id + '\')"><span class="glyphicon glyphicon glyphicon-remove"></span>&nbsp;</button>';
+                    return '<button type="button" class="btn btn-xs btn-danger" onclick="deleteRecord(\'' + full.id + '\')"><span class="glyphicon glyphicon glyphicon-remove"></span>&nbsp;</button>';
                 }
             }
         ],
@@ -113,7 +140,7 @@ function initTable() {
                     selected.push(data.name);
                 });
 
-                var $selectPicker = $('#roles_' + row.id);
+                var $selectPicker = $('#_' + row.id);
                 $selectPicker.selectpicker('val', selected);
                 $selectPicker.on('changed.bs.select', function (e) {
                     roles = {

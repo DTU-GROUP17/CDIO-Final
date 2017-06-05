@@ -17,7 +17,8 @@
     <!-- Custom CSS -->
     <link href="../dist/css/sb-admin-2.css" rel="stylesheet">
     <link href="../dist/css/main.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/jq-2.2.4/dt-1.10.15/b-1.3.1/b-print-1.3.1/cr-1.3.3/r-2.1.1/datatables.min.css"/>
+    <link href="../vendor/datatables/css/dataTables.bootstrap.min.css">
+    <link href="../vendor/datatables-responsive/dataTables.responsive.js">
     <!-- Custom Fonts -->
     <link href="../vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
 
@@ -26,8 +27,6 @@
     <!--[if lt IE 9]>
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-        <script type="text/javascript" src="https://cdn.datatables.net/v/bs/jq-2.2.4/dt-1.10.15/b-1.3.1/b-print-1.3.1/cr-1.3.3/r-2.1.1/datatables.min.js"></script>
-
     <![endif]-->
 </head>
 
@@ -94,6 +93,11 @@
     <!-- Custom Theme JavaScript -->
     <script src="../dist/js/sb-admin-2.js"></script>
 
+    <!-- Datatables -->
+    <script src="../vendor/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="../vendor/datatables/js/dataTables.bootstrap.min.js"></script>
+    <script src="../vendor/datatables-responsive/dataTables.responsive.js"></script>
+
     <script src="../vendor/js-cookie/js.cookie.js"></script>
 
     <script src="../js/Classes/Sidebar.js"></script>
@@ -107,7 +111,6 @@
                 user.load().then(() => {
                     sidebar.render(user);
                     $("#page-wrapper").load('dashboard.html');
-                    console.log(user);
                 }).catch(() => {
                     window.location.href = "login.html";
                 });
