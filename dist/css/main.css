@@ -1,3 +1,7 @@
 th {
     text-align: center;
 }
+
+td .form-control{
+    width: 100% !important;
+}

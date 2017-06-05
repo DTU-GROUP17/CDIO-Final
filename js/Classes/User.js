@@ -40,6 +40,25 @@ const user = {
         });
     },
 
+    all: function() {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: 'http://localhost:9998/users',
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                'beforeSend': function (request) {
+                    request.setRequestHeader("Authorization", "Bearer " + Cookies.get('token'));
+                },
+            })
+            .done(function(data) {
+                resolve(data);
+            })
+            .fail(function () {
+                reject();
+            })
+        });
+    },
+
     /**
      * Logs the user into the system and returns true if successful.
      * @param {string} username
