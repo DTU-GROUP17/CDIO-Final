@@ -5,28 +5,46 @@
         </div>
         <!-- /.col-lg-12 -->
     </div>
-    <!-- /.row -->
-    <div id="page_container">
 
 
-        <table class="wTable" id="table_weight" cellspacing="0" width="100%">
-            <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>URI</th>
-                <th>Created At</th>
-                <th>Created By</th>
-                <th>Edited At</th>
-                <th>Edited By</th>
-                <th>Deleted At</th>
-                <th>Deleted By</th>
-                <th>Edit</th>
-                <th>Delete</th>
-            </tr>
-            </thead>
-        </table>
 
-    </div>
+        <div id="PersonTableContainer"></div>
+
 </div>
+
 <!-- /.container-fluid -->
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#PersonTableContainer').jtable({
+            title: 'Table of people',
+            actions: {
+                listAction: '/GettingStarted/PersonList',
+                createAction: '/GettingStarted/CreatePerson',
+                updateAction: '/GettingStarted/UpdatePerson',
+                deleteAction: '/GettingStarted/DeletePerson'
+            },
+            fields: {
+                PersonId: {
+                    key: true,
+                    list: false
+                },
+                Name: {
+                    title: 'Author Name',
+                    width: '40%'
+                },
+                Age: {
+                    title: 'Age',
+                    width: '20%'
+                },
+                RecordDate: {
+                    title: 'Record date',
+                    width: '30%',
+                    type: 'date',
+                    create: false,
+                    edit: false
+                }
+            }
+        });
+    });
+</script>
