@@ -2,23 +2,12 @@
     <div class="row">
         <div class="col-lg-12">
             <h1 class="page-header">users</h1>
-            <div id="failed" class="alert alert-danger" hidden>Failed fetching the users...</div>
+            <div id="failed" class="alert alert-danger" hidden></div>
 
             <div class="panel panel-default">
                 <div class="panel-heading"></div>
                 <div class="panel-body">
-                    <div class="table-responsive">
-                        <table class="datatable table table-striped" id="table_users">
-                            <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Name</th>
-                                <th>Username</th>
-                                <th>Roles</th>
-                            </tr>
-                            </thead>
-                        </table>
-                    </div>
+                    <div id="table_users"></div>
                 </div>
             </div>
         </div>
@@ -30,62 +19,55 @@
 
 <script>
     $(function(){
-      $("#table_users").dataTable({
-            "searching": false,
-            "paging": false,
-            "info": false,
-            "sort": false,
-            responsive : true,
-            "columns": [
-                {
-                    "data" : 'id',
-                    'width' : '1%'
+        let table = $("#table_users");
+
+        table.jtable({
+            fields : {
+                id : {
+                    title : '#',
                 },
-                {
-                    "data": "name",
-                    "render": function (data, type, full) {
-                        return '<input type="text" class="form-control" value="'+data+'">';
-                    },
-                    'className' : ''
+                name : {
+                    title : "name"
                 },
-                {
-                    "data": "username",
-                    "render": function (data, type, full) {
-                        return '<input type="text" class="form-control" value="'+data+'">';
-                    },
-                    'width' : '20%'
+                username : {
+                    title : "username"
                 },
-                {
-                    "data": "roles",
-                    "render": function (roles, type, full) {
-                        roles.forEach(function (role){
-                            console.log(role);
-                        });
-                        return roles;
-                    }
-                },
-            ],
+                roles : {
+                    title : "roles"
+                }
+            },
+            div : {
+                errorDialog : $('#failed')
+            },
+            actions : {
+                listAction : function () {
+                    return new Promise((resolve, reject) => {
+                        User.all()
+                            .then((users) => {
+                                let records = [];
+                                users.forEach(function (user){
+                                    records.push({
+                                        id : user.id,
+                                        name : user.name,
+                                        username : user.username,
+                                        roles : "roles"
+                                    })
+                                });
+
+                                resolve({
+                                    Result : "OK",
+                                    TotalRecordCount : users.length,
+                                    Records : records
+                                });
+                            })
+                            .catch(() => {
+                                reject('Failed fetching the users...');
+                            })
+                    });
+                }
+            }
         });
-
-
-        let table = $("#table_users").DataTable();
-        table.rows().remove();
-
-        user.all().then((users) => {
-            users.forEach(function (user){
-                table.rows.add([
-                    {
-                        'id' : user.id,
-                        'name' : user.name,
-                        'username': user.username,
-                        'roles' : user.roles
-                    }
-                ]).draw();
-            });
-        })
-        .catch(() => {
-            $('#failed').show();
-        });
+        table.jtable('load');
 
     });
 </script>
