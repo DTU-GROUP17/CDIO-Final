@@ -1,7 +1,7 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-lg-12">
-            <h1 class="page-header">users</h1>
+            <h1 class="page-header">Users</h1>
             <div id="failed" class="alert alert-danger" hidden></div>
 
             <div class="panel panel-default">
@@ -25,6 +25,7 @@
             fields : {
                 id : {
                     title : '#',
+                    inputTitle : 'id'
                 },
                 name : {
                     title : "name"
@@ -64,7 +65,10 @@
                                 reject('Failed fetching the users...');
                             })
                     });
-                }
+                },
+                deleteAction: '/Demo/DeleteStudent',
+                updateAction: '/Demo/UpdateStudent',
+                createAction: '/Demo/CreateStudent'
             }
         });
         table.jtable('load');

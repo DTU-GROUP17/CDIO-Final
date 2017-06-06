@@ -4,11 +4,9 @@ class Role {
         this.name = name;
     }
 
-
     hasName(name) {
         return this.name === name;
     }
-
 
     /**
      * Translates a server user to an js user.

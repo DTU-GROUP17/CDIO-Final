@@ -27,6 +27,16 @@ THE SOFTWARE.
 
 */
 
+$.widget("ui.dialog", $.extend({}, $.ui.dialog.prototype, {
+    _title: function(title) {
+        if (!this.options.title ) {
+            title.html("&#160;");
+        } else {
+            title.html(this.options.title);
+        }
+    }
+}));
+
 /************************************************************************
 * CORE jTable module                                                    *
 *************************************************************************/
@@ -1444,10 +1454,8 @@ THE SOFTWARE.
         /* Creates label for an input element.
         *************************************************************************/
         _createInputLabelForRecordField: function (fieldName) {
-            //TODO: May create label tag instead of a div.
-            return $('<div />')
-                .addClass('jtable-input-label')
-                .html(this.options.fields[fieldName].inputTitle || this.options.fields[fieldName].title);
+            var title = this.options.fields[fieldName].inputTitle || this.options.fields[fieldName].title;
+            return $('<label for="'+title+'"></label>').html(title);
         },
 
         /* Creates an input element according to field type.
@@ -1480,11 +1488,7 @@ THE SOFTWARE.
                 if (!$input.attr('id')) {
                     $input.attr('id', 'Edit-' + fieldName);
                 }
-
-                //Wrap input element with div
-                return $('<div />')
-                    .addClass('jtable-input jtable-custom-input')
-                    .append($input);
+                return $input;
             }
 
             //Create input according to field type
@@ -1553,9 +1557,7 @@ THE SOFTWARE.
                 $input.val(value);
             }
             
-            return $('<div />')
-                .addClass('jtable-input jtable-text-input')
-                .append($input);
+            return $input.addClass('form-control');
         },
 
         /* Creates a password input for a field.
@@ -2278,7 +2280,7 @@ THE SOFTWARE.
 
             //Localization
             messages: {
-                editRecord: 'Edit Record'
+                editRecord: 'Edit'
             }
         },
 
@@ -2316,11 +2318,12 @@ THE SOFTWARE.
 
             //Prepare dialog
             self._$editDiv.dialog({
+                draggable: false,
+                resizable: false,
                 autoOpen: false,
                 show: self.options.dialogShowEffect,
                 hide: self.options.dialogHideEffect,
-                width: 'auto',
-                minWidth: '300',
+                minWidth: $(window).width()*0.4,
                 modal: true,
                 title: self.options.messages.editRecord,
                 buttons:
@@ -2328,13 +2331,15 @@ THE SOFTWARE.
                             text: self.options.messages.cancel,
                             click: function () {
                                 self._$editDiv.dialog('close');
-                            }
+                            },
+                            class : "btn btn-default"
                         }, { //save button
                             id: 'EditDialogSaveButton',
                             text: self.options.messages.save,
                             click: function () {
                                 self._onSaveClickedOnEditForm();
-                            }
+                            },
+                            class : "btn btn-success"
                         }],
                 close: function () {
                     var $editForm = self._$editDiv.find('form:first');
@@ -2484,17 +2489,15 @@ THE SOFTWARE.
             base._addCellsToRowUsingRecord.apply(this, arguments);
 
             if (self.options.actions.updateAction != undefined) {
-                var $span = $('<span></span>').html(self.options.messages.editRecord);
                 var $button = $('<button title="' + self.options.messages.editRecord + '"></button>')
-                    .addClass('jtable-command-button jtable-edit-command-button')
-                    .append($span)
+                    .addClass('btn btn-warning')
+                    .html(self.options.messages.editRecord )
                     .click(function (e) {
                         e.preventDefault();
                         e.stopPropagation();
                         self._showEditForm($row);
                     });
                 $('<td></td>')
-                    .addClass('jtable-command-column')
                     .append($button)
                     .appendTo($row);
             }
@@ -2511,7 +2514,7 @@ THE SOFTWARE.
             var record = $tableRow.data('record');
 
             //Create edit form
-            var $editForm = $('<form id="jtable-edit-form" class="jtable-dialog-form jtable-edit-form"></form>');
+            var $editForm = $('<form></form>');
 
             //Create input fields
             for (var i = 0; i < self._fieldList.length; i++) {
@@ -2543,7 +2546,7 @@ THE SOFTWARE.
                 }
 
                 //Create a container div for this input field and add to form
-                var $fieldContainer = $('<div class="jtable-input-field-container"></div>').appendTo($editForm);
+                var $fieldContainer = $('<div class="form-group"></div>').appendTo($editForm);
 
                 //Create a label for input
                 $fieldContainer.append(self._createInputLabelForRecordField(fieldName));
@@ -2771,23 +2774,27 @@ THE SOFTWARE.
             }
 
             //Create div element for delete confirmation dialog
-            self._$deleteRecordDiv = $('<div><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span><span class="jtable-delete-confirm-message"></span></p></div>').appendTo(self._$mainContainer);
+            self._$deleteRecordDiv = $('<div><span class="delete-confirm-message"></span></div>').appendTo(self._$mainContainer);
 
             //Prepare dialog
             self._$deleteRecordDiv.dialog({
+                draggable: false,
+                resizable: false,
                 autoOpen: false,
                 show: self.options.dialogShowEffect,
                 hide: self.options.dialogHideEffect,
                 modal: true,
-                title: self.options.messages.areYouSure,
+                title: '<i class="fa fa-exclamation-triangle"></i> '+self.options.messages.areYouSure,
                 buttons:
                         [{  //cancel button
                             text: self.options.messages.cancel,
                             click: function () {
                                 self._$deleteRecordDiv.dialog("close");
-                            }
+                            },
+                            class : 'btn btn-default'
                         }, {//delete button
                             id: 'DeleteDialogButton',
+                            class : 'btn btn-danger',
                             text: self.options.messages.deleteText,
                             click: function () {
 
@@ -2963,15 +2970,15 @@ THE SOFTWARE.
             if (self.options.actions.deleteAction != undefined) {
                 var $span = $('<span></span>').html(self.options.messages.deleteText);
                 var $button = $('<button title="' + self.options.messages.deleteText + '"></button>')
-                    .addClass('jtable-command-button jtable-delete-command-button')
+                    .addClass('btn btn-danger')
                     .append($span)
                     .click(function (e) {
                         e.preventDefault();
                         e.stopPropagation();
                         self._deleteButtonClickedForRow($row);
                     });
+
                 $('<td></td>')
-                    .addClass('jtable-command-column')
                     .append($button)
                     .appendTo($row);
             }
@@ -3013,7 +3020,7 @@ THE SOFTWARE.
 
             if (deleteConfirm != false) {
                 //Confirmation
-                self._$deleteRecordDiv.find('.jtable-delete-confirm-message').html(deleteConfirmMessage);
+                self._$deleteRecordDiv.find('.delete-confirm-message').html(deleteConfirmMessage);
                 self._showDeleteDialog($row);
             } else {
                 //No confirmation
