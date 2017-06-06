@@ -10,9 +10,13 @@ function Sidebar (element) {
     /**
      * Run this method for render the sidebar
      *
-     * @param {user} user
+     * @param {User} user
      */
-    this.render = function(user) {
+    this.render = function(user = null) {
+        if(user === null) {
+            user = currentUser;
+        }
+
         let menus = this.menu.dashboard;
 
         if(user.hasRole('Admin')) {

@@ -27,6 +27,16 @@ THE SOFTWARE.
 
 */
 
+$.widget("ui.dialog", $.extend({}, $.ui.dialog.prototype, {
+    _title: function(title) {
+        if (!this.options.title ) {
+            title.html("&#160;");
+        } else {
+            title.html(this.options.title);
+        }
+    }
+}));
+
 /************************************************************************
 * CORE jTable module                                                    *
 *************************************************************************/
@@ -60,6 +70,9 @@ THE SOFTWARE.
             saveUserPreferences: true,
             jqueryuiTheme: false,
             unAuthorizedRequestRedirectUrl: null,
+            div : {
+                errorDialog : null
+            },
 
             ajaxSettings: {
                 type: 'POST',
@@ -132,6 +145,8 @@ THE SOFTWARE.
         *************************************************************************/
         _create: function () {
 
+            this._$errorDialogDiv = this.options.div.errorDialog;
+
             //Initialization
             this._normalizeFieldsOptions();
             this._initializeFields();
@@ -142,8 +157,6 @@ THE SOFTWARE.
             this._createTableTitle();
             this._createToolBar();
             this._createTable();
-            this._createBusyPanel();
-            this._createErrorDialogDiv();
             this._addNoDataRow();
 
             this._cookieKeyPrefix = this._generateCookieKeyPrefix();            
@@ -213,11 +226,8 @@ THE SOFTWARE.
         /* Creates the main container div.
         *************************************************************************/
         _createMainContainer: function () {
-            this._$mainContainer = $('<div />')
-                .addClass('jtable-main-container')
-                .appendTo(this.element);
+            this._$mainContainer = this.element;
 
-            this._jqueryuiThemeAddClass(this._$mainContainer, 'ui-widget');
         },
 
         /* Creates title of the table if a title supplied in options.
@@ -230,7 +240,6 @@ THE SOFTWARE.
             }
 
             var $titleDiv = $('<div />')
-                .addClass('jtable-title')
                 .appendTo(self._$mainContainer);
 
             self._jqueryuiThemeAddClass($titleDiv, 'ui-widget-header');
@@ -264,7 +273,7 @@ THE SOFTWARE.
         *************************************************************************/
         _createTable: function () {
             this._$table = $('<table></table>')
-                .addClass('jtable')
+                .addClass('table table-striped')
                 .appendTo(this._$mainContainer);
 
             if (this.options.tableId) {
@@ -309,26 +318,7 @@ THE SOFTWARE.
         *  Returns th jQuery object.
         *************************************************************************/
         _createHeaderCellForField: function (fieldName, field) {
-            field.width = field.width || '10%'; //default column width: 10%.
-
-            var $headerTextSpan = $('<span />')
-                .addClass('jtable-column-header-text')
-                .html(field.title);
-
-            var $headerContainerDiv = $('<div />')
-                .addClass('jtable-column-header-container')
-                .append($headerTextSpan);
-
-            var $th = $('<th></th>')
-                .addClass('jtable-column-header')
-                .addClass(field.listClass)
-                .css('width', field.width)
-                .data('fieldName', fieldName)
-                .append($headerContainerDiv);
-
-            this._jqueryuiThemeAddClass($th, 'ui-state-default');
-
-            return $th;
+            return $('<th></th>').html(field.title);
         },
 
         /* Creates an empty header cell that can be used as command column headers.
@@ -349,35 +339,6 @@ THE SOFTWARE.
             this._$tableBody = $('<tbody></tbody>').appendTo(this._$table);
         },
 
-        /* Creates a div to block UI while jTable is busy.
-        *************************************************************************/
-        _createBusyPanel: function () {
-            this._$busyMessageDiv = $('<div />').addClass('jtable-busy-message').prependTo(this._$mainContainer);
-            this._$busyDiv = $('<div />').addClass('jtable-busy-panel-background').prependTo(this._$mainContainer);
-            this._jqueryuiThemeAddClass(this._$busyMessageDiv, 'ui-widget-header');
-            this._hideBusy();
-        },
-
-        /* Creates and prepares error dialog div.
-        *************************************************************************/
-        _createErrorDialogDiv: function () {
-            var self = this;
-
-            self._$errorDialogDiv = $('<div></div>').appendTo(self._$mainContainer);
-            self._$errorDialogDiv.dialog({
-                autoOpen: false,
-                show: self.options.dialogShowEffect,
-                hide: self.options.dialogHideEffect,
-                modal: true,
-                title: self.options.messages.error,
-                buttons: [{
-                    text: self.options.messages.close,
-                    click: function () {
-                        self._$errorDialogDiv.dialog('close');
-                    }
-                }]
-            });
-        },
 
         /************************************************************************
         * PUBLIC METHODS                                                        *
@@ -433,11 +394,9 @@ THE SOFTWARE.
             var self = this;
 
             var completeReload = function(data) {
-                self._hideBusy();
-
                 //Show the error message if server returns error
                 if (data.Result != 'OK') {
-                    self._showError(data.Message);
+                    self._showError(data.message);
                     return;
                 }
 
@@ -453,30 +412,33 @@ THE SOFTWARE.
                 }
             };
 
-            self._showBusy(self.options.messages.loadingMessage, self.options.loadingAnimationDelay); //Disable table since it's busy
-            self._onLoadingRecords();
 
             //listAction may be a function, check if it is
             if ($.isFunction(self.options.actions.listAction)) {
-
                 //Execute the function
                 var funcResult = self.options.actions.listAction(self._lastPostData, self._createJtParamsForLoading());
 
+                // Might be a promise
+                if(funcResult instanceof Promise) {
+                    funcResult.then((data) => {
+                        completeReload(data);
+                    }).catch((message) => {
+                        this._showError(message);
+                    });
+                }
                 //Check if result is a jQuery Deferred object
-                if (self._isDeferredObject(funcResult)) {
+                else if (self._isDeferredObject(funcResult)) {
+
                     funcResult.done(function(data) {
                         completeReload(data);
                     }).fail(function() {
                         self._showError(self.options.messages.serverCommunicationError);
-                    }).always(function() {
-                        self._hideBusy();
                     });
                 } else { //assume it's the data we're loading
                     completeReload(funcResult);
                 }
 
             } else { //assume listAction as URL string.
-
                 //Generate URL (with query string parameters) to load records
                 var loadUrl = self._createRecordLoadUrl();
 
@@ -488,7 +450,6 @@ THE SOFTWARE.
                         completeReload(data);
                     },
                     error: function () {
-                        self._hideBusy();
                         self._showError(self.options.messages.serverCommunicationError);
                     }
                 });
@@ -514,7 +475,6 @@ THE SOFTWARE.
         *************************************************************************/
         _createRowFromRecord: function (record) {
             var $tr = $('<tr></tr>')
-                .addClass('jtable-data-row')
                 .attr('data-record-key', this._getKeyValueOfRecord(record))
                 .data('record', record);
 
@@ -715,13 +675,7 @@ THE SOFTWARE.
         /* Refreshes styles of all rows in the table
         *************************************************************************/
         _refreshRowStyles: function () {
-            for (var i = 0; i < this._$tableRows.length; i++) {
-                if (i % 2 == 0) {
-                    this._$tableRows[i].addClass('jtable-row-even');
-                } else {
-                    this._$tableRows[i].removeClass('jtable-row-even');
-                }
-            }
+
         },
 
         /* RENDERING FIELD VALUES ***********************************************/
@@ -1072,7 +1026,10 @@ THE SOFTWARE.
         /* Shows error message dialog with given message.
         *************************************************************************/
         _showError: function (message) {
-            this._$errorDialogDiv.html(message).dialog('open');
+            if(this._$errorDialogDiv !== null) {
+                this._$errorDialogDiv.html(message).show();
+            }
+
         },
 
         /* BUSY PANEL ***********************************************************/
@@ -1109,13 +1066,6 @@ THE SOFTWARE.
 
         /* Hides busy indicator and unblocks table UI.
         *************************************************************************/
-        _hideBusy: function () {
-            clearTimeout(this._setBusyTimer);
-            this._setBusyTimer = null;
-            this._$busyDiv.hide();
-            this._$busyMessageDiv.html('').hide();
-        },
-
         /* Returns true if jTable is busy.
         *************************************************************************/
         _isBusy: function () {
@@ -1504,10 +1454,8 @@ THE SOFTWARE.
         /* Creates label for an input element.
         *************************************************************************/
         _createInputLabelForRecordField: function (fieldName) {
-            //TODO: May create label tag instead of a div.
-            return $('<div />')
-                .addClass('jtable-input-label')
-                .html(this.options.fields[fieldName].inputTitle || this.options.fields[fieldName].title);
+            var title = this.options.fields[fieldName].inputTitle || this.options.fields[fieldName].title;
+            return $('<label for="'+title+'"></label>').html(title);
         },
 
         /* Creates an input element according to field type.
@@ -1540,11 +1488,7 @@ THE SOFTWARE.
                 if (!$input.attr('id')) {
                     $input.attr('id', 'Edit-' + fieldName);
                 }
-
-                //Wrap input element with div
-                return $('<div />')
-                    .addClass('jtable-input jtable-custom-input')
-                    .append($input);
+                return $input;
             }
 
             //Create input according to field type
@@ -1613,9 +1557,7 @@ THE SOFTWARE.
                 $input.val(value);
             }
             
-            return $('<div />')
-                .addClass('jtable-input jtable-text-input')
-                .append($input);
+            return $input.addClass('form-control');
         },
 
         /* Creates a password input for a field.
@@ -2338,7 +2280,7 @@ THE SOFTWARE.
 
             //Localization
             messages: {
-                editRecord: 'Edit Record'
+                editRecord: 'Edit'
             }
         },
 
@@ -2376,11 +2318,12 @@ THE SOFTWARE.
 
             //Prepare dialog
             self._$editDiv.dialog({
+                draggable: false,
+                resizable: false,
                 autoOpen: false,
                 show: self.options.dialogShowEffect,
                 hide: self.options.dialogHideEffect,
-                width: 'auto',
-                minWidth: '300',
+                minWidth: $(window).width()*0.4,
                 modal: true,
                 title: self.options.messages.editRecord,
                 buttons:
@@ -2388,13 +2331,15 @@ THE SOFTWARE.
                             text: self.options.messages.cancel,
                             click: function () {
                                 self._$editDiv.dialog('close');
-                            }
+                            },
+                            class : "btn btn-default"
                         }, { //save button
                             id: 'EditDialogSaveButton',
                             text: self.options.messages.save,
                             click: function () {
                                 self._onSaveClickedOnEditForm();
-                            }
+                            },
+                            class : "btn btn-success"
                         }],
                 close: function () {
                     var $editForm = self._$editDiv.find('form:first');
@@ -2544,17 +2489,15 @@ THE SOFTWARE.
             base._addCellsToRowUsingRecord.apply(this, arguments);
 
             if (self.options.actions.updateAction != undefined) {
-                var $span = $('<span></span>').html(self.options.messages.editRecord);
                 var $button = $('<button title="' + self.options.messages.editRecord + '"></button>')
-                    .addClass('jtable-command-button jtable-edit-command-button')
-                    .append($span)
+                    .addClass('btn btn-warning')
+                    .html(self.options.messages.editRecord )
                     .click(function (e) {
                         e.preventDefault();
                         e.stopPropagation();
                         self._showEditForm($row);
                     });
                 $('<td></td>')
-                    .addClass('jtable-command-column')
                     .append($button)
                     .appendTo($row);
             }
@@ -2571,7 +2514,7 @@ THE SOFTWARE.
             var record = $tableRow.data('record');
 
             //Create edit form
-            var $editForm = $('<form id="jtable-edit-form" class="jtable-dialog-form jtable-edit-form"></form>');
+            var $editForm = $('<form></form>');
 
             //Create input fields
             for (var i = 0; i < self._fieldList.length; i++) {
@@ -2603,7 +2546,7 @@ THE SOFTWARE.
                 }
 
                 //Create a container div for this input field and add to form
-                var $fieldContainer = $('<div class="jtable-input-field-container"></div>').appendTo($editForm);
+                var $fieldContainer = $('<div class="form-group"></div>').appendTo($editForm);
 
                 //Create a label for input
                 $fieldContainer.append(self._createInputLabelForRecordField(fieldName));
@@ -2831,23 +2774,27 @@ THE SOFTWARE.
             }
 
             //Create div element for delete confirmation dialog
-            self._$deleteRecordDiv = $('<div><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span><span class="jtable-delete-confirm-message"></span></p></div>').appendTo(self._$mainContainer);
+            self._$deleteRecordDiv = $('<div><span class="delete-confirm-message"></span></div>').appendTo(self._$mainContainer);
 
             //Prepare dialog
             self._$deleteRecordDiv.dialog({
+                draggable: false,
+                resizable: false,
                 autoOpen: false,
                 show: self.options.dialogShowEffect,
                 hide: self.options.dialogHideEffect,
                 modal: true,
-                title: self.options.messages.areYouSure,
+                title: '<i class="fa fa-exclamation-triangle"></i> '+self.options.messages.areYouSure,
                 buttons:
                         [{  //cancel button
                             text: self.options.messages.cancel,
                             click: function () {
                                 self._$deleteRecordDiv.dialog("close");
-                            }
+                            },
+                            class : 'btn btn-default'
                         }, {//delete button
                             id: 'DeleteDialogButton',
+                            class : 'btn btn-danger',
                             text: self.options.messages.deleteText,
                             click: function () {
 
@@ -2932,8 +2879,6 @@ THE SOFTWARE.
                 if ($deletedRows.length > 0) {
                     self._removeRowsFromTableWithAnimation($deletedRows);
                 }
-
-                self._hideBusy();
             };
 
             //Delete all rows
@@ -3025,15 +2970,15 @@ THE SOFTWARE.
             if (self.options.actions.deleteAction != undefined) {
                 var $span = $('<span></span>').html(self.options.messages.deleteText);
                 var $button = $('<button title="' + self.options.messages.deleteText + '"></button>')
-                    .addClass('jtable-command-button jtable-delete-command-button')
+                    .addClass('btn btn-danger')
                     .append($span)
                     .click(function (e) {
                         e.preventDefault();
                         e.stopPropagation();
                         self._deleteButtonClickedForRow($row);
                     });
+
                 $('<td></td>')
-                    .addClass('jtable-command-column')
                     .append($button)
                     .appendTo($row);
             }
@@ -3075,7 +3020,7 @@ THE SOFTWARE.
 
             if (deleteConfirm != false) {
                 //Confirmation
-                self._$deleteRecordDiv.find('.jtable-delete-confirm-message').html(deleteConfirmMessage);
+                self._$deleteRecordDiv.find('.delete-confirm-message').html(deleteConfirmMessage);
                 self._showDeleteDialog($row);
             } else {
                 //No confirmation
@@ -4429,9 +4374,6 @@ THE SOFTWARE.
 
         _create: function () {
             base._create.apply(this, arguments);
-
-            this._createColumnResizeBar();
-            this._createColumnSelection();
 
             if (this.options.saveUserPreferences) {
                 this._loadColumnSettings();
