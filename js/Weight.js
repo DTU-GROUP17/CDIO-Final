@@ -1,4 +1,4 @@
-var log_out = 'index.html';
+/*var log_out = 'index.html';
 var urluser = 'http://localhost:9998/users/';
 
 
@@ -64,9 +64,63 @@ function changeRecord(record_id, type) {
                 window.location.replace(log_out);
             }
         });
+}*/
+
+
+class Weights {
+    constructor(id, name, uri, created_at, created_by, updated_at, updated_by, deleted_at, deleted_by) {
+        this.id = id;
+        this.name = name;
+        this.uri = uri;
+        this.created_at = created_at;
+        this.created_by = created_by;
+        this.updated_at = updated_at;
+        this.updated_by = updated_by;
+        this.deleted_at = deleted_at;
+        this.deleted_by = deleted_by;
+    }
+
+    static all(token = null) {
+        return new Promise((resolve, reject) => {
+                $.ajax({
+                url: Setting.baseURI+'weights',
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                'beforeSend': function (request) {
+                    request.setRequestHeader("Authorization", "Bearer " + Cookies.get('token'));
+                },
+            })
+                .done(function(data) {
+                    let weights = [];
+                    data.forEach(function (weights) {
+                        weights.push(new Weights(weights.id , weights.name , weights.uri, weights.created_at, weights.created_by, weights.updated_at , weights.updated_by, weights.deleted_at, weights.deleted_by ));
+                    });
+                    resolve(weights);
+                })
+                .fail(function () {
+                    reject();
+                })
+    });
+    }
+
+
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 function initTable() {
     $("#table_weight").dataTable({
         "searching": false,
@@ -185,3 +239,4 @@ function initTable() {
         }
     });
 }
+*/
