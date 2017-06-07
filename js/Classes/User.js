@@ -36,7 +36,8 @@ class User {
                 },
             })
                 .done(function(data) {
-                    let user = new User(data.id, data.name, data.username, Role.fromServer(data.roles, true));
+                    let user = new User(data.id, data.name, data.username, Role.fromServer(data.roles, true), token);
+                    console.log(user);
                     resolve(user);
                 })
                 .fail(function () {

@@ -1,78 +1,21 @@
-/*var log_out = 'index.html';
-var urluser = 'http://localhost:9998/users/';
-
-
-function getCookie(cname) {
-
-    var name = cname + "=";
-    var decodedCookie = decodeURIComponent(document.cookie);
-    var ca = decodedCookie.split(';');
-    for(var i = 0; i <ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0) == ' ') {
-            c = c.substring(1);
-        }
-        if (c.indexOf(name) == 0) {
-            return c.substring(name.length, c.length);
-        }
-    }
-    return "";
+function date_conversion(date)
+{
+    var myDate = new Date(date * 1000);
+    date = myDate.toGMTString();
+    var trimmed_date = date.substring(0, date.length-4) // Atmetamas GMT ir vienas tarpas
+    document.write(trimmed_date);
 }
-
-function deleteRecord() {
-    $.ajax({
-        'beforeSend': function (request) {
-            request.setRequestHeader("Authorization", "Bearer " + getCookie("token"));
-        },
-        'url': url,  // Need to set Url
-        'type': 'DELETE',
-        contentType: 'application/json; charset=utf-8',
-    })
-        .done(function (data) {
-            window.location.replace(log_out);
-        })
-        .fail(function(data) {
-            console.log("???"); // PLZ DO not delete, master comment fixer???! WTF DUDE!!!!!
-            if(data.status !== 200) {
-                alert("failed deleting user!");
-            }
-            window.location.replace(log_out);
-        });
-}
-
-function changeRecord(record_id, type) {
-    var val = $('#'+type+'_'+record_id).val();
-
-    var data  = {};
-    data[type] = val;
-
-    $.ajax({
-        'beforeSend': function (request) {
-            request.setRequestHeader("Authorization", "Bearer " + getCookie("token"));
-        },
-        'url': urlUser,  // Url should change
-        'type': 'PATCH',
-        'data': JSON.stringify(data),
-        contentType: 'application/json; charset=utf-8',
-    }).done(function(data) {
-    })
-        .fail(function(data) {
-            if(data.status !== 200) {
-                alert("failed updating record!");
-            }
-            if(type === "id") {   //check id ??!!
-                window.location.replace(log_out);
-            }
-        });
-}*/
 
 
 class Weights {
+
+
+
     constructor(id, name, uri, created_at, created_by, updated_at, updated_by, deleted_at, deleted_by) {
         this.id = id;
         this.name = name;
         this.uri = uri;
-        this.created_at = created_at;
+        this.created_at = moment(created_at);
         this.created_by = created_by;
         this.updated_at = updated_at;
         this.updated_by = updated_by;
@@ -80,10 +23,11 @@ class Weights {
         this.deleted_by = deleted_by;
     }
 
+
     static all(token = null) {
         return new Promise((resolve, reject) => {
                 $.ajax({
-                url: Setting.baseURI+'self',
+                url: Setting.baseURI+'weights',
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 'beforeSend': function (request) {
@@ -91,9 +35,14 @@ class Weights {
                 },
             })
                 .done(function(data) {
+
                     let weights = [];
-                    data.forEach(function (weights) {
-                        weights.push(new Weights(weights.id , weights.name , weights.uri, weights.created_at, weights.created_by, weights.updated_at , weights.updated_by, weights.deleted_at, weights.deleted_by ));
+
+                    data.forEach(function (weight) {
+                        console.log(weight);
+
+                        weights.push(new Weights(weight.id, weight.name , weight.uri, weight.createdAt, weight.createdBy
+                            , weight.updatedAt, weight.updatedBy, weight.deletedAt, weight.deletedBy));
                     });
                     resolve(weights);
                 })
@@ -102,6 +51,8 @@ class Weights {
                 })
     });
     }
+
+
 
     /**
      * Logs the user into the system and returns true if successful.

@@ -34,7 +34,10 @@
                     title : "uri"
                 },
                 created_at : {
-                    title : "created_at"
+                    title : "created_at",
+                    display: function(row) {
+                        return row.record.created_at.format('DD/MM/YYYY');
+                    }
                 },
                 created_by : {
                     title : "created_by"
@@ -61,7 +64,8 @@
                             Weights.all()
                             .then((weights) => {
                             let records = [];
-                    weights.forEach(function (user){
+                            console.log(weights);
+                    weights.forEach(function (weights){
                         records.push({
                             id : weights.id,
                             name : weights.name,
