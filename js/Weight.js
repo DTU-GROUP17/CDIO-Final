@@ -68,6 +68,9 @@ function changeRecord(record_id, type) {
 
 
 class Weights {
+
+
+
     constructor(id, name, uri, created_at, created_by, updated_at, updated_by, deleted_at, deleted_by) {
         this.id = id;
         this.name = name;
@@ -80,6 +83,7 @@ class Weights {
         this.deleted_by = deleted_by;
     }
 
+
     static all(token = null) {
         return new Promise((resolve, reject) => {
                 $.ajax({
@@ -91,10 +95,18 @@ class Weights {
                 },
             })
                 .done(function(data) {
+
                     let weights = [];
-                    console.log(data);
+
                     data.forEach(function (weight) {
-                        weights.push(new Weights(weight.name , weight.uri));
+                        console.log(weight);
+                        // Split timestamp into [ Y, M, D, h, m, s ]
+                        var t = "2010-06-09 13:12:01".split(/[- :]/);
+                        // Apply each element to the Date function
+                        var d = new Date(Date.UTC(t[0], t[1]-1, t[2], t[3], t[4], t[5]));
+
+                        weights.push(new Weights(weight.id, weight.name , weight.uri, weight.createdAt.d, weight.createdBy
+                            , weight.updatedAt, weight.updatedBy, weight.deletedAt, weight.deletedBy));
                     });
                     resolve(weights);
                 })
@@ -103,6 +115,8 @@ class Weights {
                 })
     });
     }
+
+
 
     /**
      * Logs the user into the system and returns true if successful.
