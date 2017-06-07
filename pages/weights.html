@@ -34,7 +34,10 @@
                     title : "uri"
                 },
                 created_at : {
-                    title : "created_at"
+                    title : "created_at",
+                    display: function(row) {
+                        return row.record.created_at.format('DD/MM/YYYY');
+                    }
                 },
                 created_by : {
                     title : "created_by"
