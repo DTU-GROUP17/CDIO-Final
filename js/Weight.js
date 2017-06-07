@@ -1,12 +1,3 @@
-function date_conversion(date)
-{
-    var myDate = new Date(date * 1000);
-    date = myDate.toGMTString();
-    var trimmed_date = date.substring(0, date.length-4) // Atmetamas GMT ir vienas tarpas
-    document.write(trimmed_date);
-}
-
-
 class Weights {
 
 
@@ -39,7 +30,7 @@ class Weights {
                     let weights = [];
 
                     data.forEach(function (weight) {
-                        console.log(weight);
+
 
                         weights.push(new Weights(weight.id, weight.name , weight.uri, weight.createdAt, weight.createdBy
                             , weight.updatedAt, weight.updatedBy, weight.deletedAt, weight.deletedBy));
@@ -87,6 +78,28 @@ class Weights {
 
 
 
+}
+alert(Weights.id);
+
+function deleteWeight() {
+    $.ajax({
+        'beforeSend': function (request) {
+            request.setRequestHeader("Authorization", "Bearer " + getCookie("token"));
+        },
+        data: data.weight.id,
+        'url': Setting.baseURI+'weights/',
+        'type': 'DELETE',
+        contentType: 'application/json; charset=utf-8',
+    })
+        .done(function (data) {
+            window.location.replace(log_out);
+        })
+        .fail(function(data) {
+            if(data.status !== 200) {
+                alert("failed deleting weight!");
+            }
+            window.location.replace(log_out);
+        });
 }
 
 
