@@ -17,9 +17,9 @@ class Weights {
         this.uri = uri;
         this.created_at = moment(created_at);
         this.created_by = created_by;
-        this.updated_at = updated_at;
+        this.updated_at = moment(updated_at);
         this.updated_by = updated_by;
-        this.deleted_at = deleted_at;
+        this.deleted_at = moment(deleted_at);
         this.deleted_by = deleted_by;
     }
 
