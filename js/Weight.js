@@ -83,7 +83,7 @@ class Weights {
     static all(token = null) {
         return new Promise((resolve, reject) => {
                 $.ajax({
-                url: Setting.baseURI+'self',
+                url: Setting.baseURI+'weights',
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 'beforeSend': function (request) {
@@ -92,8 +92,9 @@ class Weights {
             })
                 .done(function(data) {
                     let weights = [];
-                    data.forEach(function (weights) {
-                        weights.push(new Weights(weights.id , weights.name , weights.uri, weights.created_at, weights.created_by, weights.updated_at , weights.updated_by, weights.deleted_at, weights.deleted_by ));
+                    console.log(data);
+                    data.forEach(function (weight) {
+                        weights.push(new Weights(weight.name , weight.uri));
                     });
                     resolve(weights);
                 })
