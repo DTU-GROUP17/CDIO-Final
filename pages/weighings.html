@@ -1,10 +1,88 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-lg-12">
-            <h1 class="page-header">Weights</h1>
+            <h1 class="page-header">Weighings</h1>
+            <div id="failed" class="alert alert-danger" hidden></div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading"></div>
+                <div class="panel-body">
+                    <div id="table_weighings"></div>
+                </div>
+            </div>
         </div>
         <!-- /.col-lg-12 -->
     </div>
     <!-- /.row -->
 </div>
 <!-- /.container-fluid -->
+
+
+<script>
+    $(function(){
+        let table = $("#table_weighings");
+
+
+        table.jtable({
+            fields : {
+                id : {
+                    title : '#',
+                    inputTitle : 'id'
+                },
+                product_batch_id : {
+                    title : "P.Batch.Id"
+                },
+                material_id : {
+                    title : "Material.Id"
+                },
+                weight_id : {
+                    title : "Weight.Id"
+                },
+                amount : {
+                    title : "Amount"
+                }
+            },
+            div : {
+                errorDialog : $('#failed')
+            },
+            actions : {
+                listAction : function () {
+                    return new Promise((resolve, reject) => {
+                        Weighings.all()
+                            .then((weighings) => {
+                                let records = [];
+                                //console.log(weighing);
+                                weighings.forEach(function (weighings){
+                                    records.push({
+                                        id : weighings.id,
+                                        product_batch_id : weighings.product_batch_id,
+                                        material_id : weighings.material_id,
+                                        weight_id : weighings.weight_id,
+                                        amount : weighings.amount,
+
+
+                                    })
+                                });
+
+                                resolve({
+                                    Result : "OK",
+                                    TotalRecordCount : weighings.length,
+                                    Records : records
+                                });
+                            })
+                            .catch(() => {
+                                reject('Failed fetching the weight...');
+                            })
+                    });
+                },
+
+                deleteAction:  '',
+                updateAction: '/Demo/UpdateStudent',
+                createAction: '/Demo/CreateStudent'
+            }
+        });
+        table.jtable('load');
+
+    });
+
+</script>
