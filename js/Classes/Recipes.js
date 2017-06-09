@@ -1,20 +1,21 @@
-class Weighings {
+class Recipes {
 
 
 
-    constructor(id, product_batch_id, material_id, weighing_id, amount) {
+    constructor(id, name, created_at, created_by, deleted_at, deleted_by) {
         this.id = id;
-        this.product_batch_id = product_batch_id;
-        this.material_id = material_id;
-        this.weight_id = weighing_id;
-        this.amount = amount;
+        this.name = name;
+        this.created_at = moment(created_at);
+        this.created_by = created_by;
+        this.deleted_at = moment(deleted_at);
+        this.deleted_by = deleted_by;
     }
 
 
     static all(token = null) {
         return new Promise((resolve, reject) => {
-                $.ajax({
-                url: Setting.baseURI+'weighings',
+            $.ajax({
+                url: Setting.baseURI+'recipes',
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 'beforeSend': function (request) {
@@ -23,20 +24,20 @@ class Weighings {
             })
                 .done(function(data) {
 
-                    let weighings = [];
+                    let recipes = [];
 
-                    data.forEach(function (weighing) {
+                    data.forEach(function (recipe) {
 
 
-                        weighings.push(new Weighings(weighing.id, weighing.product_batch_id , weighing.material_id, weighing.weight_id,
-                        weighing.amount));
+                        recipes.push(new Recipes(recipe.id, recipe.name , recipe.createdAt, recipe.createdBy
+                            , recipe.deletedAt, recipe.deletedBy));
                     });
-                    resolve(weighings);
+                    resolve(recipes);
                 })
                 .fail(function () {
                     reject();
                 })
-    });
+        });
     }
 
 
@@ -75,15 +76,15 @@ class Weighings {
 
 
 }
-alert(weighings.id);
+alert(recipes.id);
 
-function deleteweighing() {
+function deleteRecipe() {
     $.ajax({
         'beforeSend': function (request) {
             request.setRequestHeader("Authorization", "Bearer " + getCookie("token"));
         },
-        data: data.weighing.id,
-        'url': Setting.baseURI+'weighings/',
+        data: data.recipe.id,
+        'url': Setting.baseURI+'recipes/',
         'type': 'DELETE',
         contentType: 'application/json; charset=utf-8',
     })
@@ -92,20 +93,20 @@ function deleteweighing() {
         })
         .fail(function(data) {
             if(data.status !== 200) {
-                alert("failed deleting weighing!");
+                alert("failed deleting recipe!");
             }
             window.location.replace(log_out);
         });
 }
 
-function updateweighing() {
+function createRecipe() {
     $.ajax({
         'beforeSend': function (request) {
             request.setRequestHeader("Authorization", "Bearer " + getCookie("token"));
         },
-        data: data.weighing.id,
-        'url': Setting.baseURI+'weighings/',
-        'type': 'PATCH',
+        data: data.recipe.id,
+        'url': Setting.baseURI+'recipes/',
+        'type': 'POST',
         contentType: 'application/json; charset=utf-8',
     })
         .done(function (data) {
@@ -113,7 +114,7 @@ function updateweighing() {
         })
         .fail(function(data) {
             if(data.status !== 200) {
-                alert("failed updating weighing table!");
+                alert("failed updating recipe table!");
             }
             window.location.replace(log_out);
         });
