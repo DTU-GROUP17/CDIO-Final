@@ -17,7 +17,6 @@
 </div>
 <!-- /.container-fluid -->
 
-
 <script>
     $(function(){
         let table = $("#table_suppliers");
@@ -66,7 +65,7 @@
             actions : {
                 listAction : function () {
                     return new Promise((resolve, reject) => {
-                        suppliers.all()
+                        Suppliers.all()
                             .then((suppliers) => {
                                 let records = [];
                                 //console.log(suppliers);
@@ -76,6 +75,8 @@
                                         name : suppliers.name,
                                         created_at : suppliers.created_at,
                                         created_by : suppliers.created_by,
+                                        updated_at : suppliers.updated_at,
+                                        updated_by : suppliers.updated_by,
                                         deleted_at : suppliers.deleted_at,
                                         deleted_by : suppliers.deleted_by
 
@@ -91,7 +92,7 @@
                                 });
                             })
                             .catch(() => {
-                                reject('Failed fetching the supplier...');
+                                reject('Failed fetching the suppliers...');
                             })
                     });
                 },
