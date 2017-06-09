@@ -46,7 +46,7 @@
                 updated_at : {
                     title : "updated_at",
                     display: function(row) {
-                        return row.record.updated_at.format('DD/MM/YYYY');
+                        return row.record.updated_at.isValid() ? row.record.updated_at.format('DD/MM/YYYY') : null;
                     }
                 },
                 updated_by : {

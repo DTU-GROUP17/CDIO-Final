@@ -62,7 +62,7 @@ $.widget("ui.dialog", $.extend({}, $.ui.dialog.prototype, {
             actions: {},
             fields: {},
             animationsEnabled: true,
-            defaultDateFormat: 'yy-mm-dd',
+            defaultDateFormat: 'dd-mm-yyyy',
             dialogShowEffect: 'fade',
             dialogHideEffect: 'fade',
             showCloseButton: false,
