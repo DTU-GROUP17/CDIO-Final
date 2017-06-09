@@ -1,10 +1,104 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-lg-12">
-            <h1 class="page-header">Weights</h1>
+            <h1 class="page-header">Product Batches</h1>
+            <div id="failed" class="alert alert-danger" hidden></div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading"></div>
+                <div class="panel-body">
+                    <div id="table_product_batches"></div>
+                </div>
+            </div>
         </div>
         <!-- /.col-lg-12 -->
     </div>
     <!-- /.row -->
 </div>
 <!-- /.container-fluid -->
+
+
+<script>
+    $(function(){
+        let table = $("#table_product_batches");
+
+
+        table.jtable({
+            fields : {
+                id : {
+                    title : '#',
+                    inputTitle : 'id'
+                },
+                recipe_id : {
+                    title : "Recipe Id"
+                },
+                status : {
+                    title : "Status"
+                },
+                weighed_by : {
+                    title : "Wighted By"
+                },
+                weighed_at : {
+                    title : "Weight date",
+                    display: function(row) {
+                        return row.record.weighed_at.format('DD/MM/YYYY');
+                    }
+                },
+                created_at : {
+                    title : "Created date",
+                    display: function(row) {
+                        return row.record.created_at.format('DD/MM/YYYY');
+                    }
+                },
+                created_by : {
+                    title : "Created by"
+                }
+            },
+            div : {
+                errorDialog : $('#failed')
+            },
+            actions : {
+                listAction : function () {
+                    return new Promise((resolve, reject) => {
+                        Product_batches.all()
+                            .then((product_batches) => {
+                                let records = [];
+                                //console.log(product_batches);
+                                product_batches.forEach(function (product_batches){
+                                    records.push({
+                                        id :         product_batches.id,
+                                        recipe_id  : product_batches.recipe_id,
+                                        status     : product_batches.status,
+                                        weighed_by : product_batches.weighed_by,
+                                        weighed_at : product_batches.weighed_at,
+                                        created_at : product_batches.created_at,
+                                        created_by : product_batches.created_by
+
+
+
+
+                                    })
+                                });
+
+                                resolve({
+                                    Result : "OK",
+                                    TotalRecordCount : product_batches.length,
+                                    Records : records
+                                });
+                            })
+                            .catch(() => {
+                                reject('Failed fetching the product batches...');
+                            })
+                    });
+                },
+
+                deleteAction:  '',
+                updateAction: '',
+                createAction: ''
+            }
+        });
+        table.jtable('load');
+
+    });
+
+</script>

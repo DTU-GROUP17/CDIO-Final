@@ -2,6 +2,14 @@
     <div class="row">
         <div class="col-lg-12">
             <h1 class="page-header">Recipes</h1>
+            <div id="failed" class="alert alert-danger" hidden></div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading"></div>
+                <div class="panel-body">
+                    <div id="table_recipes"></div>
+                </div>
+            </div>
         </div>
         <!-- /.col-lg-12 -->
     </div>
@@ -11,25 +19,83 @@
 
 
 
-<div id="page_container">
+<script>
+    $(function(){
+        let table = $("#table_recipes");
 
 
-    <table class="wTable" id="table_weight" cellspacing="0" width="100%">
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>URI</th>
-            <th>Created At</th>
-            <th>Created By</th>
-            <th>Edited At</th>
-            <th>Edited By</th>
-            <th>Deleted At</th>
-            <th>Deleted By</th>
-            <th>Edit</th>
-            <th>Delete</th>
-        </tr>
-        </thead>
-    </table>
+        table.jtable({
+            fields : {
+                id : {
+                    title : '#',
+                    inputTitle : 'id'
+                },
+                name : {
+                    title : "name"
+                },
+                created_at : {
+                    title : "created_at",
+                    display: function(row) {
+                        return row.record.created_at.format('DD/MM/YYYY');
+                    }
+                },
+                created_by : {
+                    title : "created_by"
+                },
+                deleted_at : {
+                    title : "deleted_at",
+                    display: function(row) {
+                        return row.record.deleted_at.isValid() ? row.record.deleted_at.format('DD/MM/YYYY') : null;
+                    }
+                },
+                deleted_by : {
+                    title : "deleted_by"
+                }
+            },
+            div : {
+                errorDialog : $('#failed')
+            },
+            actions : {
+                listAction : function () {
+                    return new Promise((resolve, reject) => {
+                        Recipes.all()
+                            .then((recipes) => {
+                                let records = [];
+                                //console.log(recipes);
+                                recipes.forEach(function (recipes){
+                                    records.push({
+                                        id : recipes.id,
+                                        name : recipes.name,
+                                        uri : recipes.uri,
+                                        created_at : recipes.created_at,
+                                        created_by : recipes.created_by,
+                                        deleted_at : recipes.deleted_at,
+                                        deleted_by : recipes.deleted_by
 
-</div>
+
+
+                                    })
+                                });
+
+                                resolve({
+                                    Result : "OK",
+                                    TotalRecordCount : recipes.length,
+                                    Records : records
+                                });
+                            })
+                            .catch(() => {
+                                reject('Failed fetching the recipe...');
+                            })
+                    });
+                },
+
+                deleteAction:  '',
+                updateAction: '',
+                createAction: ''
+            }
+        });
+        table.jtable('load');
+
+    });
+
+</script>

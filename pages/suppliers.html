@@ -2,9 +2,108 @@
     <div class="row">
         <div class="col-lg-12">
             <h1 class="page-header">Suppliers</h1>
+            <div id="failed" class="alert alert-danger" hidden></div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading"></div>
+                <div class="panel-body">
+                    <div id="table_suppliers"></div>
+                </div>
+            </div>
         </div>
         <!-- /.col-lg-12 -->
     </div>
     <!-- /.row -->
 </div>
 <!-- /.container-fluid -->
+
+<script>
+    $(function(){
+        let table = $("#table_suppliers");
+
+
+        table.jtable({
+            fields : {
+                id : {
+                    title : '#',
+                    inputTitle : 'id'
+                },
+                name : {
+                    title : "name"
+                },
+                created_at : {
+                    title : "created_at",
+                    display: function(row) {
+                        return row.record.created_at.format('DD/MM/YYYY');
+                    }
+                },
+                created_by : {
+                    title : "created_by"
+                },
+                updated_at : {
+                    title : "updated_at",
+                    display: function(row) {
+                        return row.record.updated_at.format('DD/MM/YYYY');
+                    }
+                },
+                updated_by : {
+                    title : "updated_by"
+                },
+                deleted_at : {
+                    title : "deleted_at",
+                    display: function(row) {
+                        return row.record.deleted_at.isValid() ? row.record.deleted_at.format('DD/MM/YYYY') : null;
+                    }
+                },
+                deleted_by : {
+                    title : "deleted_by"
+                }
+            },
+            div : {
+                errorDialog : $('#failed')
+            },
+            actions : {
+                listAction : function () {
+                    return new Promise((resolve, reject) => {
+                        Suppliers.all()
+                            .then((suppliers) => {
+                                let records = [];
+                                //console.log(suppliers);
+                                suppliers.forEach(function (suppliers){
+                                    records.push({
+                                        id : suppliers.id,
+                                        name : suppliers.name,
+                                        created_at : suppliers.created_at,
+                                        created_by : suppliers.created_by,
+                                        updated_at : suppliers.updated_at,
+                                        updated_by : suppliers.updated_by,
+                                        deleted_at : suppliers.deleted_at,
+                                        deleted_by : suppliers.deleted_by
+
+
+
+                                    })
+                                });
+
+                                resolve({
+                                    Result : "OK",
+                                    TotalRecordCount : suppliers.length,
+                                    Records : records
+                                });
+                            })
+                            .catch(() => {
+                                reject('Failed fetching the suppliers...');
+                            })
+                    });
+                },
+
+                deleteAction:  '',
+                updateAction: '',
+                createAction: ''
+            }
+        });
+        table.jtable('load');
+
+    });
+
+</script>
