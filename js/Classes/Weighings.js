@@ -77,7 +77,7 @@ class Weighings {
 }
 alert(weighings.id);
 
-function deleteweighing() {
+function deleteWeighing() {
     $.ajax({
         'beforeSend': function (request) {
             request.setRequestHeader("Authorization", "Bearer " + getCookie("token"));
@@ -98,7 +98,7 @@ function deleteweighing() {
         });
 }
 
-function updateweighing() {
+function updateWeighing() {
     $.ajax({
         'beforeSend': function (request) {
             request.setRequestHeader("Authorization", "Bearer " + getCookie("token"));
