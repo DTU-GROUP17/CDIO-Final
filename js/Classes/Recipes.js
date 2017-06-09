@@ -1,22 +1,21 @@
-class Batches {
+class Recipes {
 
 
 
-    constructor(id, recipe_id, status, weighed_by, weighed_at, created_at, created_by) {
+    constructor(id, name, created_at, created_by, deleted_at, deleted_by) {
         this.id = id;
-        this.recipe_id = recipe_id;
-        this.status = status;
-        this.weighed_by = weighed_by;
-        this.weighed_at = moment(weighed_at);
+        this.name = name;
         this.created_at = moment(created_at);
         this.created_by = created_by;
+        this.deleted_at = moment(deleted_at);
+        this.deleted_by = deleted_by;
     }
 
 
     static all(token = null) {
         return new Promise((resolve, reject) => {
             $.ajax({
-                url: Setting.baseURI+'batches',
+                url: Setting.baseURI+'recipes',
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 'beforeSend': function (request) {
@@ -25,15 +24,15 @@ class Batches {
             })
                 .done(function(data) {
 
-                    let batches = [];
+                    let recipes = [];
 
-                    data.forEach(function (batch) {
+                    data.forEach(function (recipe) {
 
 
-                        batches.push(new Batches(batch.id, batch.recipe_id , batch.status, batch.weighed_by, batch.weighed_at
-                            , batch.created_at, batch.created_by));
+                        recipes.push(new Recipes(recipe.id, recipe.name , recipe.createdAt, recipe.createdBy
+                            , recipe.deletedAt, recipe.deletedBy));
                     });
-                    resolve(batches);
+                    resolve(recipes);
                 })
                 .fail(function () {
                     reject();
@@ -77,15 +76,15 @@ class Batches {
 
 
 }
-alert(batch.id);
+alert(recipes.id);
 
-function deleteBatch() {
+function deleteRecipe() {
     $.ajax({
         'beforeSend': function (request) {
             request.setRequestHeader("Authorization", "Bearer " + getCookie("token"));
         },
-        data: data.batch.id,
-        'url': Setting.baseURI+'batches/',
+        data: data.recipe.id,
+        'url': Setting.baseURI+'recipes/',
         'type': 'DELETE',
         contentType: 'application/json; charset=utf-8',
     })
@@ -94,19 +93,19 @@ function deleteBatch() {
         })
         .fail(function(data) {
             if(data.status !== 200) {
-                alert("failed deleting batch!");
+                alert("failed deleting recipe!");
             }
             window.location.replace(log_out);
         });
 }
 
-function createBatch() {
+function createRecipe() {
     $.ajax({
         'beforeSend': function (request) {
             request.setRequestHeader("Authorization", "Bearer " + getCookie("token"));
         },
-        data: data.batch.id,
-        'url': Setting.baseURI+'batches/',
+        data: data.recipe.id,
+        'url': Setting.baseURI+'recipes/',
         'type': 'POST',
         contentType: 'application/json; charset=utf-8',
     })
@@ -115,7 +114,7 @@ function createBatch() {
         })
         .fail(function(data) {
             if(data.status !== 200) {
-                alert("failed updating batch table!");
+                alert("failed updating recipe table!");
             }
             window.location.replace(log_out);
         });
