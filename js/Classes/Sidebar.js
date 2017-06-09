@@ -46,9 +46,10 @@ function Sidebar (element) {
          * @param url
          * @returns {string}
          */
-        this.item = function(text, icon, url) {
+        this.item = (function (text, icon, url) {
             return "<li><a onclick='$(\"#page-wrapper\").load(\""+url+".html\")'><i class='fa "+icon+" fa-fw'></i>"+text+"</a></li>";
-        };
+
+        });
 
         this.dashboard = this.item('Dashboard', 'fa-dashboard', 'dashboard');
         this.users = this.item('Users', 'fa-user', 'users');
@@ -58,6 +59,7 @@ function Sidebar (element) {
         this.materials = this.item('Materials', 'fa-tree', 'materials');
         this.suppliers = this.item('Suppliers', 'fa-building-o', 'suppliers');
         this.recipes = this.item('Recipes', 'fa-book', 'recipes');
+
 
     };
 }

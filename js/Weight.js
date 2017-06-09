@@ -64,12 +64,12 @@ class Weights {
                 })
             })
                 .done(function(data) {
-                    console.log('done');
+                    //console.log('done');
                     Cookies.set('token', data.message);
                     resolve(data.message);
                 })
                 .fail(function() {
-                    console.log('failed');
+                   // console.log('failed');
                     reject("User login failed!");
                 });
         });
