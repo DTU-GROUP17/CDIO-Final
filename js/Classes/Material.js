@@ -35,3 +35,26 @@ class Material {
 
 
 }
+alert(materials.id);
+
+
+function createMaterial() {
+    $.ajax({
+        'beforeSend': function (request) {
+            request.setRequestHeader("Authorization", "Bearer " + getCookie("token"));
+        },
+        data: data.material.id,
+        'url': Setting.baseURI+'materials/',
+        'type': 'POST',
+        contentType: 'application/json; charset=utf-8',
+    })
+        .done(function (data) {
+            window.location.replace(log_out);
+        })
+        .fail(function(data) {
+            if(data.status !== 200) {
+                alert("failed updating material table!");
+            }
+            window.location.replace(log_out);
+        });
+}
