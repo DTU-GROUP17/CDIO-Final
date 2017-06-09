@@ -1,24 +1,20 @@
-class Weights {
+class Weighings {
 
 
 
-    constructor(id, name, uri, created_at, created_by, updated_at, updated_by, deleted_at, deleted_by) {
+    constructor(id, product_batch_id, material_id, weighing_id, amount) {
         this.id = id;
-        this.name = name;
-        this.uri = uri;
-        this.created_at = moment(created_at);
-        this.created_by = created_by;
-        this.updated_at = moment(updated_at);
-        this.updated_by = updated_by;
-        this.deleted_at = moment(deleted_at);
-        this.deleted_by = deleted_by;
+        this.product_batch_id = product_batch_id;
+        this.material_id = material_id;
+        this.weight_id = weighing_id;
+        this.amount = amount;
     }
 
 
     static all(token = null) {
         return new Promise((resolve, reject) => {
                 $.ajax({
-                url: Setting.baseURI+'weights',
+                url: Setting.baseURI+'weighings',
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 'beforeSend': function (request) {
@@ -27,15 +23,15 @@ class Weights {
             })
                 .done(function(data) {
 
-                    let weights = [];
+                    let weighings = [];
 
-                    data.forEach(function (weight) {
+                    data.forEach(function (weighing) {
 
 
-                        weights.push(new Weights(weight.id, weight.name , weight.uri, weight.createdAt, weight.createdBy
-                            , weight.updatedAt, weight.updatedBy, weight.deletedAt, weight.deletedBy));
+                        weighings.push(new Weighings(weighing.id, weighing.product_batch_id , weighing.material_id, weighing.weight_id,
+                        weighing.amount));
                     });
-                    resolve(weights);
+                    resolve(weighings);
                 })
                 .fail(function () {
                     reject();
@@ -79,15 +75,15 @@ class Weights {
 
 
 }
-alert(Weights.id);
+alert(weighings.id);
 
-function deleteWeight() {
+function deleteweighing() {
     $.ajax({
         'beforeSend': function (request) {
             request.setRequestHeader("Authorization", "Bearer " + getCookie("token"));
         },
-        data: data.weight.id,
-        'url': Setting.baseURI+'weights/',
+        data: data.weighing.id,
+        'url': Setting.baseURI+'weighings/',
         'type': 'DELETE',
         contentType: 'application/json; charset=utf-8',
     })
@@ -96,19 +92,19 @@ function deleteWeight() {
         })
         .fail(function(data) {
             if(data.status !== 200) {
-                alert("failed deleting weight!");
+                alert("failed deleting weighing!");
             }
             window.location.replace(log_out);
         });
 }
 
-function updateWeight() {
+function updateweighing() {
     $.ajax({
         'beforeSend': function (request) {
             request.setRequestHeader("Authorization", "Bearer " + getCookie("token"));
         },
-        data: data.weight.id,
-        'url': Setting.baseURI+'weights/',
+        data: data.weighing.id,
+        'url': Setting.baseURI+'weighings/',
         'type': 'PATCH',
         contentType: 'application/json; charset=utf-8',
     })
@@ -117,7 +113,7 @@ function updateWeight() {
         })
         .fail(function(data) {
             if(data.status !== 200) {
-                alert("failed updating weight table!");
+                alert("failed updating weighing table!");
             }
             window.location.replace(log_out);
         });

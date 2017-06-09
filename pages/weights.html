@@ -21,6 +21,7 @@
     $(function(){
         let table = $("#table_weights");
 
+
         table.jtable({
             fields : {
                 id : {
@@ -43,13 +44,19 @@
                     title : "created_by"
                 },
                 updated_at : {
-                    title : "updated_at"
+                    title : "updated_at",
+                    display: function(row) {
+                        return row.record.updated_at.format('DD/MM/YYYY');
+                    }
                 },
                 updated_by : {
                     title : "updated_by"
                 },
                 deleted_at : {
-                    title : "deleted_at"
+                    title : "deleted_at",
+                    display: function(row) {
+                        return row.record.deleted_at.isValid() ? row.record.deleted_at.format('DD/MM/YYYY') : null;
+                    }
                 },
                 deleted_by : {
                     title : "deleted_by"
@@ -64,7 +71,7 @@
                             Weights.all()
                             .then((weights) => {
                             let records = [];
-                            console.log(weights);
+                            //console.log(weights);
                     weights.forEach(function (weights){
                         records.push({
                             id : weights.id,
@@ -93,7 +100,8 @@
                 })
                 });
                 },
-                deleteAction: '/Demo/DeleteStudent',
+
+                deleteAction:  '',
                 updateAction: '/Demo/UpdateStudent',
                 createAction: '/Demo/CreateStudent'
             }
@@ -103,6 +111,3 @@
     });
 
 </script>
-
-
-<script src="../js/Weight.js"></script>
