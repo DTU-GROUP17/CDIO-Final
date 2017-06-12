@@ -1,7 +1,5 @@
 class Batches {
 
-
-
     constructor(id, recipe_id, status, weighed_by, weighed_at, created_at, created_by) {
         this.id = id;
         this.recipe_id = recipe_id;

@@ -1,19 +1,69 @@
 class User {
-    constructor(id, name, username, roles, token = null) {
+    constructor(id, name, username, roles, token = null, self = false) {
         this.token = token;
         this.id = id;
         this.name = name;
         this.roles = roles;
         this.username = username;
+        this.self = self;
     }
 
     hasRole(role) {
         for (let i = 0; i < this.roles.length; i++) {
-            if(this.roles[0].hasName(role) ) {
+            if(this.roles[i].hasName(role) ) {
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     *
+     * @return {Promise}
+     */
+    destroy() {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: this.self ? Setting.baseURI+'self' : Setting.baseURI+'users/'+this.id,
+                type : 'DELETE',
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                beforeSend : function (request) {
+                    request.setRequestHeader("Authorization", "Bearer " + Cookies.get('token'));
+                },
+            })
+                .done(function(data) {
+                    resolve(data);
+                })
+                .fail(function(message) {
+                    reject(message);
+                })
+        });
+    }
+
+    /**
+     *
+     * @param {int} id
+     * @return {Promise}
+     */
+    static destroyById(id) {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: Setting.baseURI+'users/'+id,
+                type : 'DELETE',
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                beforeSend : function (request) {
+                    request.setRequestHeader("Authorization", "Bearer " + Cookies.get('token'));
+                },
+            })
+                .done(function(data) {
+                    resolve(data);
+                })
+                .fail(function(message) {
+                    reject(message);
+                });
+        });
     }
 
     /**
@@ -36,8 +86,7 @@ class User {
                 },
             })
                 .done(function(data) {
-                    let user = new User(data.id, data.name, data.username, Role.fromServer(data.roles, true), token);
-                    console.log(user);
+                    let user = new User(data.id, data.name, data.username, Role.fromServer(data.roles, true), token, true);
                     resolve(user);
                 })
                 .fail(function () {
@@ -46,7 +95,7 @@ class User {
         });
     }
 
-    static all(token = null) {
+    static all() {
         return new Promise((resolve, reject) => {
             $.ajax({
                 url: Setting.baseURI+'users',

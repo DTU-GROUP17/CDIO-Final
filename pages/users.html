@@ -25,7 +25,8 @@
             fields : {
                 id : {
                     title : '#',
-                    inputTitle : 'id'
+                    inputTitle : 'id',
+                    key : true
                 },
                 name : {
                     title : "name"
@@ -66,7 +67,22 @@
                             })
                     });
                 },
-                deleteAction: '',
+                deleteAction: function(data) {
+                    return new Promise((resolve, reject) => {
+                        User.destroyById(data.id)
+                            .then(() => {
+                                resolve({
+                                   Result : "OK"
+                                });
+                            })
+                            .catch((message) => {
+                                reject({
+                                    Result : "ERROR",
+                                    Message : message
+                                })
+                            });
+                    });
+                },
                 updateAction: '/Demo/UpdateStudent',
                 createAction: '/Demo/CreateStudent'
             }

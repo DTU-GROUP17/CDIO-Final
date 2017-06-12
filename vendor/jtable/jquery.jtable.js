@@ -3082,8 +3082,16 @@ $.widget("ui.dialog", $.extend({}, $.ui.dialog.prototype, {
                 //Execute the function
                 var funcResult = self.options.actions.deleteAction(postData);
 
+                // Might be a promise
+                if(funcResult instanceof Promise) {
+                    funcResult.then((data) => {
+                        completeDelete(data);
+                    }).catch((message) => {
+                        this._showError(message);
+                    });
+                }
                 //Check if result is a jQuery Deferred object
-                if (self._isDeferredObject(funcResult)) {
+                else if (self._isDeferredObject(funcResult)) {
                     //Wait promise
                     funcResult.done(function (data) {
                         completeDelete(data);

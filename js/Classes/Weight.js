@@ -49,7 +49,6 @@ class Weights {
 
 
 }
-alert(Weights.id);
 
 function deleteWeight() {
     $.ajax({
