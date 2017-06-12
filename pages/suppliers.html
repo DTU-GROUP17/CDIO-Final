@@ -53,28 +53,7 @@
                     });
                 },
 
-                /**
-                 *
-                 * @param id
-                 * @param {Supplier} supplier
-                 * @return {Promise}
-                 */
-                deleteAction:  function(id, supplier) {
-                    return new Promise((resolve, reject) => {
-                        supplier.destroy()
-                            .then(() => {
-                                resolve({
-                                    Result : "OK"
-                                });
-                            })
-                            .catch((message) => {
-                                reject({
-                                    Result : "ERROR",
-                                    Message : message
-                                })
-                            });
-                    });
-                },
+
                 updateAction: '',
                 createAction: ''
             }

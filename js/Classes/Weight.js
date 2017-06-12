@@ -69,37 +69,40 @@ class Weight {
     }
 
 
-update() {
-        return Weight.updateById(this.id);
-    }
 
-
-    static updateById(){
-
-        return new Promises((resolve, reject) => {
+    /**
+     *
+     * @return {Promise}
+     */
+    update() {
+        return new Promise((resolve, reject) => {
             $.ajax({
+                url: Setting.weightURI+this.id,
+                type : 'PATCH',
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
-                'beforeSend' : function (request) {
-                    request.setRequestHeader("Authorization", "Bearer" + Cookies.get('token'));
+                beforeSend : function (request) {
+                    request.setRequestHeader("Authorization", "Bearer " + Cookies.get('token'));
                 },
-            })
-                .done(function (data) {
-
-                    let weights = [];
-                    data.forEach(function (weight){
-                        resolve(data);
-                    })
-                        .fail(function(){
-                            reject();
-                        })
-
-
-
-
+                data : JSON.stringify({
+                    'name' : this.name,
+                     'uri' : this.uri,
                 })
-        })
+            })
+                .done(function(data) {
+                    resolve(data);
+                })
+                .fail(function(message) {
+                    reject(message);
+                })
+        });
     }
+
+
+
+
+
+
 
 
 }

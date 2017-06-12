@@ -37,7 +37,7 @@
                 created_at : {
                     title : "created_at",
                     display: function(row) {
-                        return row.record.created_at.format('DD/MM/YYYY');
+                        return moment(row.record.created_at).format('DD/MM/YYYY');
                     }
                 },
                 created_by : {
@@ -103,13 +103,22 @@
                             });
                     });
                 },
-                updateAction: function(data) {
+                /**
+                 *
+                 * @param form
+                 * @param {Weight} weight
+                 */
+                updateAction: function(form, weight) {
+                    weight.name = form.name;
+                    weight.uri = form.uri;
                     return new Promise((resolve, reject) => {
-                        Weight.updateById(data.id)
+                        weight.update()
                             .then(() => {
                                 resolve({
-                                    Result : "OK"
-                                });
+                                    Result : "OK",
+                                    Record : weight
+
+                                })
                             })
                             .catch((message) => {
                                 reject({
@@ -117,7 +126,7 @@
                                     Message : message
                                 })
                             });
-                    });
+                    })
                 },
                 createAction: '/Demo/CreateStudent'
             }
