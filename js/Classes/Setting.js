@@ -18,4 +18,7 @@ class Setting {
     static get loginURI() {
         return this.baseURI+'authentication/login/';
     }
+    static get weightURI() {
+        return this.baseURI+'weights/';
+    }
 }

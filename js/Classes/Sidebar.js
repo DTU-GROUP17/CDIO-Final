@@ -53,7 +53,7 @@ function Sidebar (element) {
 
         this.dashboard = this.item('Dashboard', 'fa-dashboard', 'dashboard');
         this.users = this.item('Users', 'fa-user', 'users');
-        this.weights = this.item('Weights', 'fa-tablet', 'weights');
+        this.weights = this.item('Weight', 'fa-tablet', 'weights');
         this.batches = this.item('Batches', 'fa-barcode', 'batches');
         this.weighings = this.item('Weighings', 'fa-table', 'weighings');
         this.materials = this.item('Materials', 'fa-tree', 'materials');

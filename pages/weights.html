@@ -68,27 +68,12 @@
             actions : {
                 listAction : function () {
                     return new Promise((resolve, reject) => {
-                        Weights.all()
+                        Weight.all()
                             .then((weights) => {
-                                let records = [];
-                                weights.forEach(function (weight){
-                                    records.push({
-                                        id : weight.id,
-                                        name : weight.name,
-                                        uri : weight.uri,
-                                        created_at : weight.created_at,
-                                        created_by : weight.created_at,
-                                        updated_at : weight.updated_at,
-                                        updated_by : weight.updated_by,
-                                        deleted_at : weight.deleted_at,
-                                        deleted_by : weight.deleted_by
-                                    })
-                                });
-
                                 resolve({
                                     Result : "OK",
                                     TotalRecordCount : weights.length,
-                                    Records : records
+                                    Records : weights
                                 });
                             })
                             .catch(() => {
@@ -96,9 +81,15 @@
                             })
                     });
                 },
-                deleteAction: function(data) {
+                /**
+                 *
+                 * @param id
+                 * @param {Weight} weight
+                 * @return {Promise}
+                 */
+                deleteAction: function(id, weight) {
                     return new Promise((resolve, reject) => {
-                        Weights.destroyById(data.id)
+                        weight.destroy()
                             .then(() => {
                                 resolve({
                                     Result : "OK"
@@ -114,7 +105,7 @@
                 },
                 updateAction: function(data) {
                     return new Promise((resolve, reject) => {
-                        Weights.updateById(data.id)
+                        Weight.updateById(data.id)
                             .then(() => {
                                 resolve({
                                     Result : "OK"

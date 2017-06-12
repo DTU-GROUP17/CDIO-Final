@@ -1,4 +1,4 @@
-class Weights {
+class Weight {
 
 
 
@@ -32,7 +32,7 @@ class Weights {
                     data.forEach(function (weight) {
 
 
-                        weights.push(new Weights(weight.id, weight.name , weight.uri, weight.createdAt, weight.createdBy
+                        weights.push(new Weight(weight.id, weight.name , weight.uri, weight.createdAt, weight.createdBy
                             , weight.updatedAt, weight.updatedBy, weight.deletedAt, weight.deletedBy));
                     });
                     resolve(weights);
@@ -44,41 +44,35 @@ class Weights {
     }
 
 
-destroy() {
-        return Weights.destroyById(this.id);
-}
-update() {
-        return Weights.updateById(this.id);
-    }
-
-
-static destroyById(){
-
-        return new Promises((resolve, reject) => {
+    /**
+     *
+     * @return {Promise}
+     */
+    destroy() {
+        return new Promise((resolve, reject) => {
             $.ajax({
+                url: Setting.weightURI+this.id,
+                type : 'DELETE',
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
-                'beforeSend' : function (request) {
-                    request.setRequestHeader("Authorization", "Bearer" + Cookies.get('token'));
+                beforeSend : function (request) {
+                    request.setRequestHeader("Authorization", "Bearer " + Cookies.get('token'));
                 },
             })
                 .done(function(data) {
-
-                    let weights = [];
-
-                    data.forEach(function (weight) {
-
-
-                        weights.delete(new Weights(weight.id, weight.name , weight.uri, weight.createdAt, weight.createdBy
-                            , weight.updatedAt, weight.updatedBy, weight.deletedAt, weight.deletedBy));
-                    });
-                    resolve(weights);
+                    resolve(data);
                 })
-                .fail(function () {
-                    reject();
+                .fail(function(message) {
+                    reject(message);
                 })
-    });
-}
+        });
+    }
+
+
+update() {
+        return Weight.updateById(this.id);
+    }
+
 
     static updateById(){
 
