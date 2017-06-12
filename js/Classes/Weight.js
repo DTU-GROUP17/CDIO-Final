@@ -44,53 +44,72 @@ class Weights {
     }
 
 
-
-
-
-
+destroy() {
+        return Weights.destroyById(this.id);
 }
+update() {
+        return Weights.updateById(this.id);
+    }
 
-function deleteWeight() {
-    $.ajax({
-        'beforeSend': function (request) {
-            request.setRequestHeader("Authorization", "Bearer " + getCookie("token"));
-        },
-        data: data.weight.id,
-        'url': Setting.baseURI+'weights/',
-        'type': 'DELETE',
-        contentType: 'application/json; charset=utf-8',
+
+static destroyById(){
+
+        return new Promises((resolve, reject) => {
+            $.ajax({
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                'beforeSend' : function (request) {
+                    request.setRequestHeader("Authorization", "Bearer" + Cookies.get('token'));
+                },
+            })
+                .done(function (data) {
+
+                    let weights = [];
+                    data.forEach(function (weight){
+                        resolve(data);
+                    })
+                        .fail(function(){
+                            reject();
+                        })
+
+
+
+
+                })
     })
-        .done(function (data) {
-            window.location.replace(log_out);
-        })
-        .fail(function(data) {
-            if(data.status !== 200) {
-                alert("failed deleting weight!");
-            }
-            window.location.replace(log_out);
-        });
 }
 
-function updateWeight() {
-    $.ajax({
-        'beforeSend': function (request) {
-            request.setRequestHeader("Authorization", "Bearer " + getCookie("token"));
-        },
-        data: data.weight.id,
-        'url': Setting.baseURI+'weights/',
-        'type': 'PATCH',
-        contentType: 'application/json; charset=utf-8',
-    })
-        .done(function (data) {
-            window.location.replace(log_out);
+    static updateById(){
+
+        return new Promises((resolve, reject) => {
+            $.ajax({
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                'beforeSend' : function (request) {
+                    request.setRequestHeader("Authorization", "Bearer" + Cookies.get('token'));
+                },
+            })
+                .done(function (data) {
+
+                    let weights = [];
+                    data.forEach(function (weight){
+                        resolve(data);
+                    })
+                        .fail(function(){
+                            reject();
+                        })
+
+
+
+
+                })
         })
-        .fail(function(data) {
-            if(data.status !== 200) {
-                alert("failed updating weight table!");
-            }
-            window.location.replace(log_out);
-        });
+    }
+
+
 }
+
+
 
 
 

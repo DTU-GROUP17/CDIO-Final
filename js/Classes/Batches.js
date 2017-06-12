@@ -44,8 +44,10 @@ class Batches {
 
 
 
+
+
+
 }
-alert(batch.id);
 
 function deleteBatch() {
     $.ajax({
