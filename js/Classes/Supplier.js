@@ -17,18 +17,9 @@ class Supplier {
      * @return {Promise}
      */
     destroy() {
-        return Supplier.destroyById(this.id);
-    }
-
-    /**
-     *
-     * @param {int} id
-     * @return {Promise}
-     */
-    static destroyById(id) {
         return new Promise((resolve, reject) => {
             $.ajax({
-                url: Setting.supplierURI+id,
+                url: Setting.supplierURI+this.id,
                 type : 'DELETE',
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
@@ -45,13 +36,14 @@ class Supplier {
         });
     }
 
+
     static all() {
         return new Promise((resolve, reject) => {
             $.ajax({
                 url: Setting.supplierURI,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
-                'beforeSend': function (request) {
+                beforeSend : function (request) {
                     request.setRequestHeader("Authorization", "Bearer " + Cookies.get('token'));
                 },
             })
@@ -60,7 +52,7 @@ class Supplier {
                     data.forEach(function (supplier) {
                         suppliers.push(new Supplier(supplier.id, supplier.name));
                     });
-                    resolve(users);
+                    resolve(suppliers);
                 })
                 .fail(function () {
                     reject();
