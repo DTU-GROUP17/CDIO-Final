@@ -20,8 +20,7 @@ function Sidebar (element) {
         let menus = this.menu.dashboard;
 
         if(user.hasRole('Admin')) {
-            menus += this.menu.users + this.menu.weights +
-            this.menu.recipes + this.menu.suppliers + this.menu.materials + this.menu.batches + this.menu.weighings;
+            menus += this.menu.users + this.menu.weights;
         }
         if(user.hasRole('Pharmaceud')) {
             menus += this.menu.recipes + this.menu.suppliers + this.menu.materials;

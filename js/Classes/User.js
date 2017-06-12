@@ -24,7 +24,7 @@ class User {
     destroy() {
         return new Promise((resolve, reject) => {
             $.ajax({
-                url: this.self ? Setting.baseURI+'self' : Setting.baseURI+'users/'+this.id,
+                url: this.self ? Setting.selfURI : Setting.userURI+this.id,
                 type : 'DELETE',
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
@@ -49,7 +49,7 @@ class User {
     static destroyById(id) {
         return new Promise((resolve, reject) => {
             $.ajax({
-                url: Setting.baseURI+'users/'+id,
+                url: Setting.userURI+id,
                 type : 'DELETE',
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
@@ -78,7 +78,7 @@ class User {
 
         return new Promise((resolve, reject) => {
             $.ajax({
-                url: Setting.baseURI+'self',
+                url: Setting.selfURI,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 'beforeSend': function (request) {
@@ -98,7 +98,7 @@ class User {
     static all() {
         return new Promise((resolve, reject) => {
             $.ajax({
-                url: Setting.baseURI+'users',
+                url: Setting.userURI,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 'beforeSend': function (request) {
@@ -128,7 +128,7 @@ class User {
         return new Promise((resolve, reject) => {
             $.ajax({
                 type: "POST",
-                url: Setting.baseURI+'authentication/login',
+                url: Setting.loginURI,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 data: JSON.stringify({
