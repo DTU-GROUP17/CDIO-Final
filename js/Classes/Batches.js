@@ -43,36 +43,6 @@ class Batches {
 
 
 
-    /**
-     * Logs the user into the system and returns true if successful.
-     * @param {string} username
-     * @param {string} password
-     * @return {Promise}
-     */
-    static login(username, password) {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                type: "POST",
-                url: Setting.baseURI+'authentication/login',
-                contentType: "application/json; charset=utf-8",
-                dataType: 'json',
-                data: JSON.stringify({
-                    "userName": username,
-                    "password": password
-                })
-            })
-                .done(function(data) {
-                    console.log('done');
-                    Cookies.set('token', data.message);
-                    resolve(data.message);
-                })
-                .fail(function() {
-                    console.log('failed');
-                    reject("User login failed!");
-                });
-        });
-
-    }
 
 
 
