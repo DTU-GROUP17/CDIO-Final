@@ -46,15 +46,10 @@
                     return new Promise((resolve, reject) => {
                         User.all()
                             .then((users) => {
-                                let records = [];
-                                users.forEach(function (user){
-                                    records.push(user);
-                                });
-
                                 resolve({
                                     Result : "OK",
                                     TotalRecordCount : users.length,
-                                    Records : records
+                                    Records : users
                                 });
                             })
                             .catch(() => {

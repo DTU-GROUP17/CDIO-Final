@@ -41,17 +41,10 @@
                     return new Promise((resolve, reject) => {
                         Supplier.all()
                             .then((suppliers) => {
-                                let records = [];
-                                suppliers.forEach(function (supplier){
-                                    records.push({
-                                        id: supplier.id,
-                                        name : supplier.name
-                                    })
-                                });
                                 resolve({
                                     Result : "OK",
                                     TotalRecordCount : suppliers.length,
-                                    Records : records
+                                    Records : suppliers
                                 });
                             })
                             .catch(() => {
@@ -60,9 +53,15 @@
                     });
                 },
 
-                deleteAction:  function(data) {
+                /**
+                 *
+                 * @param id
+                 * @param {Supplier} supplier
+                 * @return {Promise}
+                 */
+                deleteAction:  function(id, supplier) {
                     return new Promise((resolve, reject) => {
-                        Supplier.destroyById(data.id)
+                        supplier.destroy()
                             .then(() => {
                                 resolve({
                                     Result : "OK"
