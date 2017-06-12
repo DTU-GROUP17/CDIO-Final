@@ -2,7 +2,7 @@
 class Supplier {
     /**
      *
-     * @param {int} id
+     * @param {int|null} id
      * @param {string} name
      */
     constructor(id, name) {
@@ -36,7 +36,26 @@ class Supplier {
     }
 
     create() {
-
+        return new Promise((resolve, reject) => {
+            let self = this;
+            $.ajax({
+                url: Setting.supplierURI,
+                type : 'POST',
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                data : this.toStringWithoutId(),
+                beforeSend : function (request) {
+                    request.setRequestHeader("Authorization", "Bearer " + Cookies.get('token'));
+                },
+            })
+                .done(function(data) {
+                    self.id = data.id;
+                    resolve(self);
+                })
+                .fail(function(message) {
+                    reject(message);
+                })
+        });
     }
 
     static all() {

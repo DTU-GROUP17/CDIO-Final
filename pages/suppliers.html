@@ -34,7 +34,7 @@
                 },
             },
             div : {
-                errorDialog : $('#failed')
+                errorDialog : $('#failed'),
             },
             actions : {
                 listAction : function () {
@@ -62,7 +62,7 @@
                  */
                 updateAction: function (form, supplier) {
                     supplier.name = form.name;
-                    
+
                     return new Promise((resolve, reject) => {
                         supplier.update()
                             .then(() => {
@@ -79,7 +79,29 @@
                             });
                     })
                 },
-                createAction: ''
+                /**
+                 *
+                 * @param {{name: string}} form
+                 * @returns {Promise}
+                 */
+                createAction: function(form) {
+                    return new Promise((resolve, reject) => {
+                        let supplier = new Supplier(null, form.name);
+                        supplier.create()
+                            .then((supplierWithId) => {
+                                resolve({
+                                    Result : "OK",
+                                    Record : supplierWithId
+                                })
+                            })
+                            .catch((message) => {
+                                reject({
+                                    Result : "ERROR",
+                                    Message : message
+                                })
+                            });
+                    });
+                }
             }
         });
         table.jtable('load');
