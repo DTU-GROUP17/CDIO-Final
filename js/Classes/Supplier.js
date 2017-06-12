@@ -1,28 +1,27 @@
+
 class Supplier {
+    /**
+     *
+     * @param {int} id
+     * @param {string} name
+     */
     constructor(id, name) {
         this.id = id;
         this.name = name;
     }
 
-    update() {
-
-    }
-
-    create() {
-
-    }
-
     /**
      *
-     * @return {Promise}
+     * @returns {Promise}
      */
-    destroy() {
+    update() {
         return new Promise((resolve, reject) => {
             $.ajax({
                 url: Setting.supplierURI+this.id,
-                type : 'DELETE',
+                type : 'PATCH',
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
+                data : this.toStringWithoutId(),
                 beforeSend : function (request) {
                     request.setRequestHeader("Authorization", "Bearer " + Cookies.get('token'));
                 },
@@ -36,6 +35,9 @@ class Supplier {
         });
     }
 
+    create() {
+
+    }
 
     static all() {
         return new Promise((resolve, reject) => {
@@ -58,5 +60,40 @@ class Supplier {
                     reject();
                 })
         });
+    }
+
+    /**
+     *
+     * @returns {{id : int, name: string, username: string, roles: [int]}}
+     */
+    toArray() {
+        return {
+            'id' : this.id,
+            'name' : this.name,
+        }
+    }
+
+    /**
+     * @returns {string}
+     */
+    toJson() {
+        return JSON.stringify(this.toArray());
+    }
+
+    /**
+     *
+     * @returns {string}
+     */
+    toString() {
+        return this.toJson();
+    }
+
+    /**
+     * @returns {string}
+     */
+    toStringWithoutId() {
+        let array = this.toArray();
+        delete array.id;
+        return JSON.stringify(array);
     }
 }

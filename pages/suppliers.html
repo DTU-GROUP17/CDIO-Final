@@ -54,7 +54,31 @@
                 },
 
 
-                updateAction: '',
+                /**
+                 *
+                 * @param {{name: string}} form
+                 * @param {Supplier} supplier
+                 * @returns {Promise}
+                 */
+                updateAction: function (form, supplier) {
+                    supplier.name = form.name;
+                    
+                    return new Promise((resolve, reject) => {
+                        supplier.update()
+                            .then(() => {
+                                resolve({
+                                    Result : "OK",
+                                    Record : supplier
+                                })
+                            })
+                            .catch((message) => {
+                                reject({
+                                    Result : "ERROR",
+                                    Message : message
+                                })
+                            });
+                    })
+                },
                 createAction: ''
             }
         });

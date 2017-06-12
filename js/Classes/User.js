@@ -57,10 +57,7 @@ class User {
                 beforeSend : function (request) {
                     request.setRequestHeader("Authorization", "Bearer " + Cookies.get('token'));
                 },
-                data : JSON.stringify({
-                    'name' : this.name,
-                    'username' : this.username
-                })
+                data : this.toStringWithoutId()
             })
                 .done(function(data) {
                     resolve(data);
@@ -86,10 +83,7 @@ class User {
                 beforeSend : function (request) {
                     request.setRequestHeader("Authorization", "Bearer " + Cookies.get('token'));
                 },
-                data : JSON.stringify({
-                    'name' : this.name,
-                    'username' : this.username
-                })
+                data : this.toStringWithoutId()
             })
                 .done(function(data) {
                     resolve(data);
@@ -106,14 +100,18 @@ class User {
      */
     toArray() {
         let roles = [];
-        if(this.roles !== null) {
-
+        if(this.roles instanceof Array) {
+            this.roles.forEach(function (role){
+               roles.push(role.id);
+            });
+            roles.push()
         }
 
         return {
             'id' : this.id,
             'name' : this.name,
             'username' : this.username,
+            'roles' : roles
         }
     }
 
@@ -122,6 +120,23 @@ class User {
      */
     toJson() {
         return JSON.stringify(this.toArray());
+    }
+
+    /**
+     *
+     * @returns {string}
+     */
+    toString() {
+        return this.toJson();
+    }
+
+    /**
+     * @returns {string}
+     */
+    toStringWithoutId() {
+        let array = this.toArray();
+        delete array.id;
+        return JSON.stringify(array);
     }
 
     /**
