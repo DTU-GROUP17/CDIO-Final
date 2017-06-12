@@ -15,7 +15,7 @@ class Weights {
     }
 
 
-    static all(token = null) {
+    static all() {
         return new Promise((resolve, reject) => {
                 $.ajax({
                 url: Setting.baseURI+'weights',
@@ -62,21 +62,22 @@ static destroyById(){
                     request.setRequestHeader("Authorization", "Bearer" + Cookies.get('token'));
                 },
             })
-                .done(function (data) {
+                .done(function(data) {
 
                     let weights = [];
-                    data.forEach(function (weight){
-                        resolve(data);
-                    })
-                        .fail(function(){
-                            reject();
-                        })
+
+                    data.forEach(function (weight) {
 
 
-
-
+                        weights.delete(new Weights(weight.id, weight.name , weight.uri, weight.createdAt, weight.createdBy
+                            , weight.updatedAt, weight.updatedBy, weight.deletedAt, weight.deletedBy));
+                    });
+                    resolve(weights);
                 })
-    })
+                .fail(function () {
+                    reject();
+                })
+    });
 }
 
     static updateById(){
