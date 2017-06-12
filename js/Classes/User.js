@@ -45,6 +45,33 @@ class User {
 
     /**
      *
+     * @return {Promise}
+     */
+    update() {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: this.self ? Setting.selfURI : Setting.userURI+this.id,
+                type : 'PATCH',
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                beforeSend : function (request) {
+                    request.setRequestHeader("Authorization", "Bearer " + Cookies.get('token'));
+                },
+                data : JSON.stringify({
+                    'name' : this.name
+                })
+            })
+                .done(function(data) {
+                    resolve(data);
+                })
+                .fail(function(message) {
+                    reject(message);
+                })
+        });
+    }
+
+    /**
+     *
      * @param token
      * @return {Promise}
      */
