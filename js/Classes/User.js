@@ -58,7 +58,8 @@ class User {
                     request.setRequestHeader("Authorization", "Bearer " + Cookies.get('token'));
                 },
                 data : JSON.stringify({
-                    'name' : this.name
+                    'name' : this.name,
+                    'username' : this.username
                 })
             })
                 .done(function(data) {
@@ -68,6 +69,59 @@ class User {
                     reject(message);
                 })
         });
+    }
+
+    create() {
+        return new Promise((resolve, reject) => {
+            if(this.id !== null) {
+                reject('The user id is already defined.');
+                return;
+            }
+
+            $.ajax({
+                url: Setting.selfURI,
+                type : 'POST',
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                beforeSend : function (request) {
+                    request.setRequestHeader("Authorization", "Bearer " + Cookies.get('token'));
+                },
+                data : JSON.stringify({
+                    'name' : this.name,
+                    'username' : this.username
+                })
+            })
+                .done(function(data) {
+                    resolve(data);
+                })
+                .fail(function(message) {
+                    reject(message);
+                })
+        });
+    }
+
+    /**
+     *
+     * @returns {{id : int, name: string, username: string, roles: [int]}}
+     */
+    toArray() {
+        let roles = [];
+        if(this.roles !== null) {
+
+        }
+
+        return {
+            'id' : this.id,
+            'name' : this.name,
+            'username' : this.username,
+        }
+    }
+
+    /**
+     * @returns {string}
+     */
+    toJson() {
+        return JSON.stringify(this.toArray());
     }
 
     /**

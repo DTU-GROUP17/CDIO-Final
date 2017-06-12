@@ -26,7 +26,8 @@
             fields : {
                 id : {
                     title : '#',
-                    inputTitle : 'id'
+                    inputTitle : 'id',
+                    key: true
                 },
                 name : {
                     title : "name"
@@ -38,28 +39,34 @@
                     title : "created_at",
                     display: function(row) {
                         return moment(row.record.created_at).format('DD/MM/YYYY');
-                    }
+                    },
+                    edit: false
                 },
                 created_by : {
-                    title : "created_by"
+                    title : "created_by",
+                    edit: false
                 },
                 updated_at : {
                     title : "updated_at",
                     display: function(row) {
                         return row.record.updated_at.isValid() ? row.record.updated_at.format('DD/MM/YYYY') : null;
-                    }
+                    },
+                    edit: false
                 },
                 updated_by : {
-                    title : "updated_by"
+                    title : "updated_by",
+                    edit: false
                 },
                 deleted_at : {
                     title : "deleted_at",
                     display: function(row) {
                         return row.record.deleted_at.isValid() ? row.record.deleted_at.format('DD/MM/YYYY') : null;
-                    }
+                    },
+                    edit: false
                 },
                 deleted_by : {
-                    title : "deleted_by"
+                    title : "deleted_by",
+                    edit: false
                 }
             },
             div : {

@@ -99,6 +99,7 @@ $.widget("ui.dialog", $.extend({}, $.ui.dialog.prototype, {
             //Localization
             messages: {
                 serverCommunicationError: 'An error occured while communicating to the server.',
+                notAPromise : 'Not a promise passed to action.',
                 loadingMessage: 'Loading records...',
                 noDataAvailable: 'No data available!',
                 areYouSure: 'Are you sure?',
@@ -2595,17 +2596,18 @@ $.widget("ui.dialog", $.extend({}, $.ui.dialog.prototype, {
             var self = this;
             
             var completeEdit = function (data) {
+
                 if (data.Result != 'OK') {
                     self._showError(data.Message);
                     self._setEnabledOfDialogButton($saveButton, true, self.options.messages.save);
                     return;
                 }
-
                 var record = self._$editingRow.data('record');
 
                 self._updateRecordValuesFromForm(record, $editForm);
                 self._updateRecordValuesFromServerResponse(record, data);
                 self._updateRowTexts(self._$editingRow);
+
 
                 self._$editingRow.attr('data-record-key', self._getKeyValueOfRecord(record));
 
@@ -2619,13 +2621,12 @@ $.widget("ui.dialog", $.extend({}, $.ui.dialog.prototype, {
             };
 
 
-            //updateAction may be a function, check if it is
+            //Check if it's a function.
             if ($.isFunction(self.options.actions.updateAction)) {
-
                 //Execute the function
-                var funcResult = self.options.actions.updateAction($editForm.form(), self._$editingRow.data('record'));
+                let funcResult = self.options.actions.updateAction($editForm.form(), self._$editingRow.data('record'));
 
-                // Might be a promise
+                // Check if it's a promise
                 if(funcResult instanceof Promise) {
                     funcResult.then((data) => {
                         completeEdit(data);
@@ -2633,32 +2634,11 @@ $.widget("ui.dialog", $.extend({}, $.ui.dialog.prototype, {
                         this._showError(message);
                     });
                 }
-                //Check if result is a jQuery Deferred object
-                else if (self._isDeferredObject(funcResult)) {
-                    //Wait promise
-                    funcResult.done(function (data) {
-                        completeEdit(data);
-                    }).fail(function () {
-                        self._showError(self.options.messages.serverCommunicationError);
-                        self._setEnabledOfDialogButton($saveButton, true, self.options.messages.save);
-                    });
-                } else { //assume it returned the creation result
-                    completeEdit(funcResult);
+                else {
+                    this._showError(self.options.messages.notAPromise);
                 }
-
-            } else { //Assume it's a URL string
-
-                //Make an Ajax call to update record
-                self._submitFormUsingAjax(
-                    self.options.actions.updateAction,
-                    $editForm.serialize(),
-                    function(data) {
-                        completeEdit(data);
-                    },
-                    function() {
-                        self._showError(self.options.messages.serverCommunicationError);
-                        self._setEnabledOfDialogButton($saveButton, true, self.options.messages.save);
-                    });
+            } else {
+                this._showError(self.options.messages.notAPromise);
             }
 
         },
