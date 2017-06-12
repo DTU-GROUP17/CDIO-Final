@@ -48,12 +48,7 @@
                             .then((users) => {
                                 let records = [];
                                 users.forEach(function (user){
-                                    records.push({
-                                        id : user.id,
-                                        name : user.name,
-                                        username : user.username,
-                                        roles : "roles"
-                                    })
+                                    records.push(user);
                                 });
 
                                 resolve({
@@ -67,9 +62,15 @@
                             })
                     });
                 },
-                deleteAction: function(data) {
+                /**
+                 *
+                 * @param id
+                 * @param {User} user
+                 * @return {Promise}
+                 */
+                deleteAction: function(id, user) {
                     return new Promise((resolve, reject) => {
-                        User.destroyById(data.id)
+                        user.destroy()
                             .then(() => {
                                 resolve({
                                    Result : "OK"

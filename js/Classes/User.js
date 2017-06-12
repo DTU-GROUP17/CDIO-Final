@@ -8,6 +8,8 @@ class User {
         this.self = self;
     }
 
+
+
     hasRole(role) {
         for (let i = 0; i < this.roles.length; i++) {
             if(this.roles[i].hasName(role) ) {
@@ -38,31 +40,6 @@ class User {
                 .fail(function(message) {
                     reject(message);
                 })
-        });
-    }
-
-    /**
-     *
-     * @param {int} id
-     * @return {Promise}
-     */
-    static destroyById(id) {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                url: Setting.userURI+id,
-                type : 'DELETE',
-                contentType: "application/json; charset=utf-8",
-                dataType: 'json',
-                beforeSend : function (request) {
-                    request.setRequestHeader("Authorization", "Bearer " + Cookies.get('token'));
-                },
-            })
-                .done(function(data) {
-                    resolve(data);
-                })
-                .fail(function(message) {
-                    reject(message);
-                });
         });
     }
 

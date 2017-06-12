@@ -3080,7 +3080,7 @@ $.widget("ui.dialog", $.extend({}, $.ui.dialog.prototype, {
             if (!url && $.isFunction(self.options.actions.deleteAction)) {
 
                 //Execute the function
-                var funcResult = self.options.actions.deleteAction(postData);
+                var funcResult = self.options.actions.deleteAction(postData, $row.data('record'));
 
                 // Might be a promise
                 if(funcResult instanceof Promise) {
