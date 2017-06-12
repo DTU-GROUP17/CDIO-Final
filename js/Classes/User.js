@@ -8,8 +8,6 @@ class User {
         this.self = self;
     }
 
-
-
     hasRole(role) {
         for (let i = 0; i < this.roles.length; i++) {
             if(this.roles[i].hasName(role) ) {
@@ -70,6 +68,7 @@ class User {
 
     create() {
         return new Promise((resolve, reject) => {
+            let self = this;
             if(this.id !== null) {
                 reject('The user id is already defined.');
                 return;
@@ -86,7 +85,8 @@ class User {
                 data : this.toStringWithoutId()
             })
                 .done(function(data) {
-                    resolve(data);
+                    self.id = data.id;
+                    resolve(self);
                 })
                 .fail(function(message) {
                     reject(message);
