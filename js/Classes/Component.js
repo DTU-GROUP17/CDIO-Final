@@ -33,4 +33,11 @@ class Component extends Model{
     toTable() {
         return this.name;
     }
+
+    toArray() {
+        return {
+            id : this.id,
+            name : this.name
+        }
+    }
 }
