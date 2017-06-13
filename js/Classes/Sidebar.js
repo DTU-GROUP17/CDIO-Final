@@ -28,7 +28,7 @@ function Sidebar (element) {
         if(user.hasRole('Foreman')) {
             menus += this.menu.batches + this.menu.materials;
         }
-        if(user.hasRole('Lab technician')) {
+        if(user.hasRole('Lab Technician')) {
             menus += this.menu.weighings;
         }
 
@@ -55,8 +55,8 @@ function Sidebar (element) {
         this.components = this.item('Components', 'fa-question', 'components');
         this.users = this.item('Users', 'fa-user', 'users');
         this.weights = this.item('Weight', 'fa-tablet', 'weights');
-        this.batches = this.item('Batches', 'fa-barcode', 'batches');
-        this.weighings = this.item('Weighings', 'fa-table', 'weighings');
+        this.batches = this.item('Batch', 'fa-barcode', 'batches');
+        this.weighings = this.item('Weighing', 'fa-table', 'weighings');
         this.materials = this.item('Materials', 'fa-tree', 'materials');
         this.suppliers = this.item('Suppliers', 'fa-building-o', 'suppliers');
         this.recipes = this.item('Recipe', 'fa-book', 'recipes');

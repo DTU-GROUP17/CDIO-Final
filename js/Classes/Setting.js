@@ -34,4 +34,8 @@ class Setting {
     static get recipeURI() {
         return this.baseURI+'recipes/'
     }
+
+    static get batchURI() {
+        return this.baseURI+'batches/'
+    }
 }

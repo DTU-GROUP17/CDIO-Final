@@ -1626,7 +1626,8 @@
             });
 
             // Add create new record button.
-            this._$mainContainer.append('<button class="btn btn-success pull-right">'+this.options.messages.addNewRecord+'</button>').click(function(e) {
+
+            $('<button class="btn btn-success pull-right">'+this.options.messages.addNewRecord+'</button>').appendTo(this._$mainContainer).click(function(e) {
                e.preventDefault();
                self._showAddRecordForm();
             });

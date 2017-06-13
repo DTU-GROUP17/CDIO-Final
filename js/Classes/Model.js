@@ -76,6 +76,25 @@ class Model{
         });
     }
 
+    createAndRefresh() {
+        return new Promise((resolve, reject) => {
+            this.create()
+                .then((model) => {
+                    this.constructor.find(model.id)
+                        .then((model) => {
+                            resolve(model);
+                        })
+                        .catch((message) => {
+                            reject(message);
+                        })
+                })
+                .catch((message) => {
+                    reject(message);
+                })
+        })
+
+    }
+
     /**
      *
      * @return {Promise}
