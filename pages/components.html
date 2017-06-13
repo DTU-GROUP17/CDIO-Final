@@ -1,0 +1,59 @@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">Components</h1>
+            <div id="failed" class="alert alert-danger" hidden></div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading"></div>
+                <div class="panel-body">
+                    <div id="table_components"></div>
+                </div>
+            </div>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+    <!-- /.row -->
+</div>
+<!-- /.container-fluid -->
+
+
+<script>
+    $(function(){
+        let table = $("#table_components");
+
+        table.jtable({
+            fields : {
+                id : {
+                    title : '#',
+                    key: true
+                },
+                name : {
+                    title : "name",
+                },
+            },
+            div : {
+                errorDialog : $('#failed')
+            },
+            actions : {
+                listAction : function () {
+                    return new Promise((resolve, reject) => {
+                        Component.all()
+                            .then((materials) => {
+                                resolve({
+                                    Result : "OK",
+                                    TotalRecordCount : materials.length,
+                                    Records : materials
+                                });
+                            })
+                            .catch(() => {
+                                reject('Failed fetching the materials...');
+                            })
+                    });
+                },
+            }
+        });
+        table.jtable('load');
+
+    });
+</script>

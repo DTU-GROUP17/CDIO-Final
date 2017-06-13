@@ -23,7 +23,7 @@ function Sidebar (element) {
             menus += this.menu.users + this.menu.weights;
         }
         if(user.hasRole('Pharmaceud')) {
-            menus += this.menu.recipes + this.menu.suppliers;
+            menus += this.menu.recipes + this.menu.suppliers+ this.menu.components;
         }
         if(user.hasRole('Foreman')) {
             menus += this.menu.batches + this.menu.materials;
@@ -52,6 +52,7 @@ function Sidebar (element) {
         });
 
         this.dashboard = this.item('Dashboard', 'fa-dashboard', 'dashboard');
+        this.components = this.item('Components', 'fa-question', 'components');
         this.users = this.item('Users', 'fa-user', 'users');
         this.weights = this.item('Weight', 'fa-tablet', 'weights');
         this.batches = this.item('Batches', 'fa-barcode', 'batches');
