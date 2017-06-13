@@ -115,6 +115,50 @@
 	 format="yyyy-MM-dd" />
       </field>
     </section>
+
+      <default>yes</default>
+  </parameter>
+    <parameter id="6" type="date" name="Date"
+               question="When did you last take a shower?" arity="single">
+    </parameter>
+</parameters>
+
+<formulas>
+<!-- Use Ruby for formula definitions. -->
+<!-- {jobs.ID} means the value of database column jobs.ID -->
+<!-- {@1} means formula with id "1" -->
+<!-- {%report.title} means calculated value "report.title" -->
+
+<!-- The first formula checks for nil hourly_rate. If so, it -->
+<!-- returns nil (which will become an empty NULL value). -->
+<formula id="1" name="hourly rate / 100"><![CDATA[{jobs.hourly_rate}.nil? ? nil : {jobs.hourly_rate} / 100.0]]></formula>
+<formula id="2" name="refs f1"><![CDATA[{@1}]]></formula>
+</formulas>
+
+<headers>
+<section height="42">
+    <!-- This file URL is relative to the DataVision directory. -->
+    <!-- It could also be a full URL or a file path. -->
+    <field id="15" type="image" value="file:examples/Home16.gif">
+        <bounds x="8" y="8" width="16" height="16" />
+    </field>
+    <field id="1" type="special" value="report.title">
+        <bounds x="100" y="0" width="397" height="28" />
+        <format size="24" align="center" bold="true"
+                name="Helvetica" color="0;0;255;255" />
+        <border>
+            <edge location="bottom" number="2" />
+            <edge location="top" number="2" />
+            <edge location="left" number="2" />
+            <edge location="right" number="2" />
+        </border>
+    </field>
+    <field id="2" type="special" value="report.date">
+        <bounds x="100" y="28" width="397" height="14" />
+        <format align="center" name="Helvetica" color="0;0;255;127"
+                format="yyyy-MM-dd" />
+    </field>
+</section>
   </headers>
 
   <footers>

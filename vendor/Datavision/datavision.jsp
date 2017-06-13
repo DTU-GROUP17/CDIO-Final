@@ -54,5 +54,12 @@ BufferedReader in = new BufferedReader(new FileReader(tmp));
 String line;
 while ((line = in.readLine()) != null) {
     out.println(line);
+
+    Report report = new Report();
+    report.setDatabasePassword(DATABASE_PASSWORD);
+    report.read(new File(REPORT_FILE));
+
+    File tmp = File.createTempFile("datavision", null);
+    tmp.deleteOnExit();
 }
 %>

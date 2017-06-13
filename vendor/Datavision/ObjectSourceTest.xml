@@ -70,26 +70,7 @@
     </parameter>
     <parameter id="2" type="numeric" name="Number Range"
       question="Roughly how old are you?" arity="range">
-      <default><![CDATA[10]]></default>
-      <default><![CDATA[120]]></default>
-    </parameter>
-    <parameter id="3" type="numeric" name="Number List"
-      question="Pick a number, any number." arity="list-single">
-      <default><![CDATA[1.2]]></default>
-      <default><![CDATA[3.4]]></default>
-      <default><![CDATA[]]></default>
-    </parameter>
-    <parameter id="4" type="numeric" name="Pick One"
-      question="Pick as many numbers as you like." arity="list-multiple">
-      <default><![CDATA[1]]></default>
-      <default><![CDATA[2]]></default>
-      <default><![CDATA[3]]></default>
-      <default><![CDATA[4]]></default>
-      <default><![CDATA[5]]></default>
-      <default><![CDATA[6]]></default>
-      <default><![CDATA[7]]></default>
-      <default><![CDATA[8]]></default>
-      <default><![CDATA[9]]></default>
+
       <default><![CDATA[10]]></default>
     </parameter>
     <parameter id="5" type="boolean" name="Yes/No"
@@ -100,7 +81,26 @@
       question="When did you last take a shower?" arity="single">
     </parameter>
   </parameters>
-
+    <default><![CDATA[10]]></default>
+    <default><![CDATA[120]]></default>
+</parameter>
+<parameter id="3" type="numeric" name="Number List"
+           question="Pick a number, any number." arity="list-single">
+<default><![CDATA[1.2]]></default>
+<default><![CDATA[3.4]]></default>
+<default><![CDATA[]]></default>
+</parameter>
+<parameter id="4" type="numeric" name="Pick One"
+           question="Pick as many numbers as you like." arity="list-multiple">
+<default><![CDATA[1]]></default>
+<default><![CDATA[2]]></default>
+<default><![CDATA[3]]></default>
+<default><![CDATA[4]]></default>
+<default><![CDATA[5]]></default>
+<default><![CDATA[6]]></default>
+<default><![CDATA[7]]></default>
+<default><![CDATA[8]]></default>
+<default><![CDATA[9]]></default>
   <formulas>
   <!-- Use RPN for formula definitions. THIS WILL CHANGE. -->
   <!-- {jobs.ID} means database column jobs.ID -->
