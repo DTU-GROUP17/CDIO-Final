@@ -1553,10 +1553,6 @@
         * DEFAULT OPTIONS / EVENTS                                              *
         *************************************************************************/
         options: {
-
-            //Events
-            recordAdded: function (event, data) { },
-
             //Localization
             messages: {
                 addNewRecord: 'Add'
@@ -2177,7 +2173,7 @@
                 show: self.options.dialogShowEffect,
                 hide: self.options.dialogHideEffect,
                 modal: true,
-                title: ' '+self.options.messages.areYouSure,
+                title: '<i class="fa fa-exclamation-triangle"></i> '+self.options.messages.areYouSure,
                 buttons:
                         [{  //cancel button
                             text: self.options.messages.cancel,
