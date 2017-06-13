@@ -976,6 +976,19 @@
         return formData;
     };
 
+    /**
+     * Add support for html in ui dialog title box.
+     */
+    $.widget("ui.dialog", $.extend({}, $.ui.dialog.prototype, {
+        _title: function(title) {
+            if (!this.options.title ) {
+                title.html("&#160;");
+            } else {
+                title.html(this.options.title);
+            }
+        }
+    }));
+
     $.extend(true, $.hik.jtable.prototype, {
 
         /* Gets property value of an object recursively.
