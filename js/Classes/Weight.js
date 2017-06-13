@@ -49,6 +49,7 @@ class Weight {
      */
     toArray() {
         return {
+
             'name' : this.name,
             'uri' : this.uri,
 
@@ -148,8 +149,21 @@ class Weight {
                 },
             })
                 .done(function(data) {
-                    self.id = data.id;
+                    $.ajax({
+                        url: Setting.weightURI,
+                        type : 'GET',
+                        contentType: "application/json; charset=utf-8",
+                        dataType: 'json',
+                        data : 'weightId',
+                        beforeSend : function (request) {
+                            request.setRequestHeader("Authorization", "Bearer " + Cookies.get('token'));
+                        },
+                    }),
+
+                    console.log(data);
                     resolve(self);
+
+
                 })
                 .fail(function(message) {
                     reject(message);

@@ -147,7 +147,7 @@
                  */
                 createAction: function(form) {
                     return new Promise((resolve, reject) => {
-                        let weight = new Weight(null, form.name, form.uri);
+                        let weight = new Weight('', form.name, form.uri);
                         weight.create()
                             .then((weightWithId) => {
                                 resolve({
