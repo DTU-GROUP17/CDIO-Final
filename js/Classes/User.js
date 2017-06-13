@@ -1,11 +1,19 @@
-class User {
+class User extends Model{
     constructor(id, name, username, roles, token = null, self = false) {
+        super(id);
         this.token = token;
-        this.id = id;
         this.name = name;
         this.roles = roles;
         this.username = username;
         this.self = self;
+    }
+
+    static get uri() {
+        return Setting.userURI;
+    }
+
+    get uri() {
+        return Setting.userURI;
     }
 
     hasRole(role) {
@@ -66,34 +74,6 @@ class User {
         });
     }
 
-    create() {
-        return new Promise((resolve, reject) => {
-            let self = this;
-            if(this.id !== null) {
-                reject('The user id is already defined.');
-                return;
-            }
-
-            $.ajax({
-                url: Setting.selfURI,
-                type : 'POST',
-                contentType: "application/json; charset=utf-8",
-                dataType: 'json',
-                beforeSend : function (request) {
-                    request.setRequestHeader("Authorization", "Bearer " + Cookies.get('token'));
-                },
-                data : this.toStringWithoutId()
-            })
-                .done(function(data) {
-                    self.id = data.id;
-                    resolve(self);
-                })
-                .fail(function(message) {
-                    reject(message);
-                })
-        });
-    }
-
     /**
      *
      * @returns {{id : int, name: string, username: string, roles: [int]}}
@@ -116,30 +96,6 @@ class User {
     }
 
     /**
-     * @returns {string}
-     */
-    toJson() {
-        return JSON.stringify(this.toArray());
-    }
-
-    /**
-     *
-     * @returns {string}
-     */
-    toString() {
-        return this.toJson();
-    }
-
-    /**
-     * @returns {string}
-     */
-    toStringWithoutId() {
-        let array = this.toArray();
-        delete array.id;
-        return JSON.stringify(array);
-    }
-
-    /**
      *
      * @param token
      * @return {Promise}
@@ -149,6 +105,7 @@ class User {
             token = Cookies.get('token');
         }
 
+        let self = this;
         return new Promise((resolve, reject) => {
             $.ajax({
                 url: Setting.selfURI,
@@ -159,8 +116,7 @@ class User {
                 },
             })
                 .done(function(data) {
-                    let user = new User(data.id, data.name, data.username, Role.fromServer(data.roles, true), token, true);
-                    resolve(user);
+                    resolve(self._responseToObject(data));
                 })
                 .fail(function () {
                     reject();
@@ -168,27 +124,19 @@ class User {
         });
     }
 
-    static all() {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                url: Setting.userURI,
-                contentType: "application/json; charset=utf-8",
-                dataType: 'json',
-                'beforeSend': function (request) {
-                    request.setRequestHeader("Authorization", "Bearer " + Cookies.get('token'));
-                },
-            })
-                .done(function(data) {
-                    let users = [];
-                    data.forEach(function (user) {
-                        users.push(new User(user.id, user.name, user.username, Role.fromServer(user.roles, true)));
-                    });
-                    resolve(users);
-                })
-                .fail(function () {
-                    reject();
-                })
-        });
+    /**
+     *
+     * @param object
+     * @private
+     * @returns User
+     */
+    static _responseToObject(object) {
+        return new User(
+            object.id,
+            object.name,
+            object.username,
+            Role._responseToObject(object.roles, true)
+        );
     }
 
     /**

@@ -26,27 +26,30 @@
             fields : {
                 id : {
                     title : '#',
+                    key: true
+                },
+                inStock : {
+                    title : "in stock",
+                    create: false
                 },
                 stocked : {
                     title : "stocked"
                 },
-                used : {
-                    title : "used"
+                component : {
+                    title  : 'component',
+                    inputTitle : 'component id',
                 },
-                created_at : {
+                supplier : {
+                    title : "supplier",
+                    inputTitle : 'supplier id'
+                },
+                createdAt : {
                     title : "created at",
-                    display: function(row) {
-                        return row.record.created_at.format('DD/MM/YYYY');
-                    }
+                    create: false
                 },
-                component_id : {
-                    title : "component id"
-                },
-                supplier_id : {
-                    title : "supplier id"
-                },
-                created_by : {
-                    title : "created by"
+                createdBy : {
+                    title : "created by",
+                    create: false
                 }
             },
             div : {
@@ -55,31 +58,68 @@
             actions : {
                 listAction : function () {
                     return new Promise((resolve, reject) => {
-                        Materials.all()
+                        Material.all()
                             .then((materials) => {
-                                let records = [];
-                                materials.forEach(function (material){
-                                    records.push({
-                                        id : material.id,
-                                        stocked : material.stocked ,
-                                        used : material.used,
-                                        created_at : material.created_at,
-                                        component_id : material.component_id,
-                                        supplier_id : material.supplier_id,
-                                        created_by : material.created_by
-                                    })
-                                });
-
                                 resolve({
                                     Result : "OK",
                                     TotalRecordCount : materials.length,
-                                    Records : records
+                                    Records : materials
                                 });
                             })
                             .catch(() => {
                                 reject('Failed fetching the materials...');
                             })
                     });
+                },
+                /**
+                 *
+                 * @param {{stocked: float, component: int, supplier: int}} form
+                 * @returns {Promise}
+                 */
+                createAction : function(form) {
+                    return new Promise((resolve, reject) => {
+                        Supplier.find(form.supplier)
+                            .then((supplier) => {
+                                Component.find(form.component)
+                                    .then((component) => {
+                                        let material = new Material(null, null, form.stocked, supplier, component, null, null);
+                                        material.create()
+                                            .then((materialWithId) => {
+                                                Material.find(materialWithId.id)
+                                                    .then((material) => {
+                                                        resolve({
+                                                            Result : "OK",
+                                                            Record : material
+                                                        })
+                                                    })
+                                                    .catch(() => {
+                                                        reject({
+                                                            Result : "ERROR",
+                                                            Message : message
+                                                        })
+                                                    })
+                                            })
+                                            .catch((message) => {
+                                                reject({
+                                                    Result : "ERROR",
+                                                    Message : message
+                                                })
+                                            });
+                                    })
+                                    .catch((message) => {
+                                        reject({
+                                            Result : "ERROR",
+                                            Message : message
+                                        });
+                                    });
+                            })
+                            .catch((message) => {
+                                reject({
+                                    Result : "ERROR",
+                                    Message : message
+                                });
+                            });
+                    })
                 }
             }
         });

@@ -47,7 +47,6 @@
             },
 
             //Events
-            closeRequested: function (event, data) { },
             formCreated: function (event, data) { },
             formSubmitting: function (event, data) { },
             formClosed: function (event, data) { },
@@ -393,7 +392,6 @@
                 self._addRow(self._createRowFromRecord(record));
             });
 
-            self._refreshRowStyles();
         },
 
         /* Adds a single row to the table.
@@ -431,7 +429,6 @@
 
             //Show animation if needed
             if (options.isNewRow) {
-                this._refreshRowStyles();
                 if (this.options.animationsEnabled && options.animationsEnabled) {
                     this._showNewRowAnimation($row);
                 }
@@ -479,8 +476,6 @@
             if (self._$tableRows.length == 0) {
                 self._addNoDataRow();
             }
-
-            self._refreshRowStyles();
         },
 
         /* Finds index of a row in table.
@@ -536,11 +531,6 @@
             this._$tableBody.find('.jtable-no-data-row').remove();
         },
 
-        /* Refreshes styles of all rows in the table
-        *************************************************************************/
-        _refreshRowStyles: function () {
-
-        },
 
         /* RENDERING FIELD VALUES ***********************************************/
 
@@ -555,9 +545,16 @@
                 return field.display({ record: record });
             }
 
-            if (field.type == 'date') {
+            if(fieldValue instanceof Model) {
+                return fieldValue.toTable();
+            }
+            else if(moment.isMoment(fieldValue)) {
+                return fieldValue.isValid() ? fieldValue.format('DD/MM/YYYY') : null;
+            }
+
+            if (field.type === 'date') {
                 return this._getDisplayTextForDateRecordField(field, fieldValue);
-            } else if (field.type == 'checkbox') {
+            } else if (field.type === 'checkbox') {
                 return this._getCheckBoxTextForFieldByValue(fieldName, fieldValue);
             } else if (field.options) { //combobox or radio button list since there are options.
                 const options = this._getOptionsForField(fieldName, {
@@ -812,40 +809,6 @@
 
         },
 
-        /* Adds jQueryUI class to an item.
-        *************************************************************************/
-        _jqueryuiThemeAddClass: function ($elm, className, hoverClassName) {
-            if (!this.options.jqueryuiTheme) {
-                return;
-            }
-
-            $elm.addClass(className);
-
-            if (hoverClassName) {
-                $elm.hover(function () {
-                    $elm.addClass(hoverClassName);
-                }, function () {
-                    $elm.removeClass(hoverClassName);
-                });
-            }
-        },
-
-        /* COMMON METHODS *******************************************************/
-
-        /* Performs an AJAX call to specified URL.
-        * THIS METHOD IS DEPRECATED AND WILL BE REMOVED FROM FEATURE RELEASES.
-        * USE _ajax METHOD.
-        *************************************************************************/
-        _performAjaxCall: function (url, postData, async, success, error) {
-            this._ajax({
-                url: url,
-                data: postData,
-                async: async,
-                success: success,
-                error: error
-            });
-        },
-
         _unAuthorizedRequestHandler: function() {
             if (this.options.unAuthorizedRequestRedirectUrl) {
                 location.href = this.options.unAuthorizedRequestRedirectUrl;
@@ -911,34 +874,6 @@
             return record[this._keyField];
         },
 
-        /* Generates a hash key to be prefix for all cookies for this jtable instance.
-        *************************************************************************/
-        _generateCookieKeyPrefix: function () {
-
-            const simpleHash = function (value) {
-                let hash = 0;
-                if (value.length == 0) {
-                    return hash;
-                }
-
-                for (let i = 0; i < value.length; i++) {
-                    const ch = value.charCodeAt(i);
-                    hash = ((hash << 5) - hash) + ch;
-                    hash = hash & hash;
-                }
-
-                return hash;
-            };
-
-            let strToHash = '';
-            if (this.options.tableId) {
-                strToHash = strToHash + this.options.tableId + '#';
-            }
-
-            strToHash = strToHash + this._columnList.join('$') + '#c' + this._$table.find('thead th').length;
-            return 'jtable#' + simpleHash(strToHash);
-        },
-
         /************************************************************************
         * EVENT RAISING METHODS                                                 *
         *************************************************************************/
@@ -954,11 +889,6 @@
         _onRowsRemoved: function ($rows, reason) {
             this._trigger("rowsRemoved", null, { rows: $rows, reason: reason });
         },
-
-        _onCloseRequested: function () {
-            this._trigger("closeRequested", null, {});
-        }
-
     });
 
 }(jQuery));
@@ -1012,14 +942,6 @@
                 const preDot = propName.substring(0, propName.indexOf('.'));
                 const postDot = propName.substring(propName.indexOf('.') + 1);
                 this._setPropertyOfObject(obj[preDot], postDot, value);
-            }
-        },
-
-        /* Inserts a value to an array if it does not exists in the array.
-        *************************************************************************/
-        _insertToArrayIfDoesNotExists: function (array, value) {
-            if ($.inArray(value, array) < 0) {
-                array.push(value);
             }
         },
 
@@ -1807,7 +1729,6 @@
                     return;
                 }
 
-                self._onRecordAdded(data);
                 self._addRow(
                     self._createRowFromRecord(data.Record), {
                         isNewRow: true
@@ -1816,7 +1737,7 @@
             };
 
             //Check if it's a function.
-            if ($.isFunction(self.options.actions.updateAction)) {
+            if ($.isFunction(self.options.actions.createAction)) {
                 //Execute the function
                 let funcResult = self.options.actions.createAction($addRecordForm.form());
 
@@ -1835,11 +1756,6 @@
                 this._showError(self.options.messages.notAPromise);
             }
         },
-
-        _onRecordAdded: function (data) {
-            this._trigger("recordAdded", null, { record: data.Record, serverResponse: data });
-        }
-
     });
 
 })(jQuery);
