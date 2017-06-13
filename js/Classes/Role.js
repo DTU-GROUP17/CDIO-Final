@@ -15,7 +15,7 @@ class Role {
      * @param multiple
      * @return Role|Role[]
      */
-    static fromServer(role, multiple = false) {
+    static _responseToObject(role, multiple = false) {
         if(role === undefined) {
             return [];
         }

@@ -25,7 +25,8 @@
             fields : {
                 id : {
                     title : '#',
-                    inputTitle : 'id'
+                    inputTitle : 'id',
+                    key : true
                 },
                 name : {
                     title : "name"
@@ -35,7 +36,7 @@
                 },
                 roles : {
                     title : "roles"
-                }
+                },
             },
             div : {
                 errorDialog : $('#failed')
@@ -45,20 +46,10 @@
                     return new Promise((resolve, reject) => {
                         User.all()
                             .then((users) => {
-                                let records = [];
-                                users.forEach(function (user){
-                                    records.push({
-                                        id : user.id,
-                                        name : user.name,
-                                        username : user.username,
-                                        roles : "roles"
-                                    })
-                                });
-
                                 resolve({
                                     Result : "OK",
                                     TotalRecordCount : users.length,
-                                    Records : records
+                                    Records : users
                                 });
                             })
                             .catch(() => {
@@ -66,9 +57,76 @@
                             })
                     });
                 },
-                deleteAction: '',
-                updateAction: '/Demo/UpdateStudent',
-                createAction: '/Demo/CreateStudent'
+                /**
+                 *
+                 * @param id
+                 * @param {User} user
+                 * @return {Promise}
+                 */
+                deleteAction: function(id, user) {
+                    return new Promise((resolve, reject) => {
+                        user.destroy()
+                            .then(() => {
+                                resolve({
+                                   Result : "OK"
+                                });
+                            })
+                            .catch((message) => {
+                                reject({
+                                    Result : "ERROR",
+                                    Message : message
+                                })
+                            });
+                    });
+                },
+                /**
+                 *
+                 * @param form
+                 * @param {User} user
+                 */
+                updateAction: function(form, user) {
+                    user.name = form.name;
+                    user.username = form.username;
+                    //user.roles = form.roles;
+                    return new Promise((resolve, reject) => {
+                        user.update()
+                            .then(() => {
+                                resolve({
+                                    Result : "OK",
+                                    Record : user
+                                })
+                            })
+                            .catch((message) => {
+                                reject({
+                                    Result : "ERROR",
+                                    Message : message
+                                })
+                            });
+                    })
+                },
+                /**
+                 *
+                 * @param {{name : string, username : string, roles : [Role]}} form
+                 * @returns {Promise}
+                 */
+                createAction: function(form) {
+                    return new Promise((resolve, reject) => {
+                        let user = new User(null, form.name, form.username, form.roles);
+                        user.create()
+                            .then((userWithId) => {
+                                resolve({
+                                    Result: "OK",
+                                    Record: userWithId
+                                })
+                            })
+                            .catch((message) => {
+                                reject({
+                                    Result: "ERROR",
+                                    Message: message
+                                })
+                            });
+                    });
+                }
             }
         });
         table.jtable('load');

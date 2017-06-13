@@ -1,19 +1,98 @@
-class User {
-    constructor(id, name, username, roles, token = null) {
+class User extends Model{
+    constructor(id, name, username, roles, token = null, self = false) {
+        super(id);
         this.token = token;
-        this.id = id;
         this.name = name;
         this.roles = roles;
         this.username = username;
+        this.self = self;
+    }
+
+    static get uri() {
+        return Setting.userURI;
+    }
+
+    get uri() {
+        return Setting.userURI;
     }
 
     hasRole(role) {
         for (let i = 0; i < this.roles.length; i++) {
-            if(this.roles[0].hasName(role) ) {
+            if(this.roles[i].hasName(role) ) {
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     *
+     * @return {Promise}
+     */
+    destroy() {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: this.self ? Setting.selfURI : Setting.userURI+this.id,
+                type : 'DELETE',
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                beforeSend : function (request) {
+                    request.setRequestHeader("Authorization", "Bearer " + Cookies.get('token'));
+                },
+            })
+                .done(function(data) {
+                    resolve(data);
+                })
+                .fail(function(message) {
+                    reject(message);
+                })
+        });
+    }
+
+    /**
+     *
+     * @return {Promise}
+     */
+    update() {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: this.self ? Setting.selfURI : Setting.userURI+this.id,
+                type : 'PATCH',
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                beforeSend : function (request) {
+                    request.setRequestHeader("Authorization", "Bearer " + Cookies.get('token'));
+                },
+                data : this.toStringWithoutId()
+            })
+                .done(function(data) {
+                    resolve(data);
+                })
+                .fail(function(message) {
+                    reject(message);
+                })
+        });
+    }
+
+    /**
+     *
+     * @returns {{id : int, name: string, username: string, roles: [int]}}
+     */
+    toArray() {
+        let roles = [];
+        if(this.roles instanceof Array) {
+            this.roles.forEach(function (role){
+               roles.push(role.id);
+            });
+            roles.push()
+        }
+
+        return {
+            'id' : this.id,
+            'name' : this.name,
+            'username' : this.username,
+            'roles' : roles
+        }
     }
 
     /**
@@ -26,9 +105,10 @@ class User {
             token = Cookies.get('token');
         }
 
+        let self = this;
         return new Promise((resolve, reject) => {
             $.ajax({
-                url: Setting.baseURI+'self',
+                url: Setting.selfURI,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 'beforeSend': function (request) {
@@ -36,9 +116,7 @@ class User {
                 },
             })
                 .done(function(data) {
-                    let user = new User(data.id, data.name, data.username, Role.fromServer(data.roles, true), token);
-                    console.log(user);
-                    resolve(user);
+                    resolve(self._responseToObject(data));
                 })
                 .fail(function () {
                     reject();
@@ -46,27 +124,19 @@ class User {
         });
     }
 
-    static all(token = null) {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                url: Setting.baseURI+'users',
-                contentType: "application/json; charset=utf-8",
-                dataType: 'json',
-                'beforeSend': function (request) {
-                    request.setRequestHeader("Authorization", "Bearer " + Cookies.get('token'));
-                },
-            })
-                .done(function(data) {
-                    let users = [];
-                    data.forEach(function (user) {
-                        users.push(new User(user.id, user.name, user.username, Role.fromServer(user.roles, true)));
-                    });
-                    resolve(users);
-                })
-                .fail(function () {
-                    reject();
-                })
-        });
+    /**
+     *
+     * @param object
+     * @private
+     * @returns User
+     */
+    static _responseToObject(object) {
+        return new User(
+            object.id,
+            object.name,
+            object.username,
+            Role._responseToObject(object.roles, true)
+        );
     }
 
     /**
@@ -79,7 +149,7 @@ class User {
         return new Promise((resolve, reject) => {
             $.ajax({
                 type: "POST",
-                url: Setting.baseURI+'authentication/login',
+                url: Setting.loginURI,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 data: JSON.stringify({

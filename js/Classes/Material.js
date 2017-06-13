@@ -1,60 +1,63 @@
-class Material {
-    constructor(id, stocked, used, created_at, component_id, supplier_id, created_by) {
-        this.id = id;
+/**
+ * @property {Supplier} supplier
+ * @property {Component} component
+ */
+class Material extends Model{
+    /**
+     *
+     * @param {int|null} id
+     * @param {float} inStock
+     * @param {float} stocked
+     * @param {Supplier} supplier
+     * @param {Component} component
+     * @param {string} createdAt
+     * @param {string|null} createdBy
+     */
+    constructor(id, inStock, stocked, supplier, component, createdAt, createdBy) {
+        super(id, Setting.materialURI);
+        this.inStock = inStock;
         this.stocked = stocked;
-        this.used = used;
-        this.created_at = created_at;
-        this.component_id = component_id;
-        this.supplier_id = supplier_id;
-        this.created_by = created_by;
+        this.supplier = supplier;
+        this.component = component;
+        this.createdAt = createdAt;
+        this.createdBy = createdBy;
     }
 
-
-    static all(token = null) {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                url: Setting.baseURI+'materials',
-                contentType: "application/json; charset=utf-8",
-                dataType: 'json',
-                'beforeSend': function (request) {
-                    request.setRequestHeader("Authorization", "Bearer " + Cookies.get('token'));
-                },
-            })
-                .done(function(data) {
-                    let materials = [];
-                    data.forEach(function (material) {
-                        materials.push(new Material(material.id, material.stocked, material.used, material.created_at, material.component_id, material.supplier_id, material.created_by));
-                    });
-                    resolve(materials);
-                })
-                .fail(function () {
-                    reject();
-                })
-        });
+    static get uri() {
+        return Setting.materialURI;
     }
 
+    get uri() {
+        return Setting.materialURI;
+    }
 
-}
-alert(materials.id);
+    /**
+     * @returns {{id: int, supplier: int, component: int, stocked: float}}
+     */
+    toArray() {
+        return {
+            'id' : this.id,
+            'supplier' : this.supplier.id,
+            'component' : this.component.id,
+            'stocked' : this.stocked
+        }
+    }
 
-
-function createMaterial() {
-    $.ajax({
-        'beforeSend': function (request) {
-            request.setRequestHeader("Authorization", "Bearer " + getCookie("token"));
-        },
-        data: data.material.id,
-        'url': Setting.baseURI+'materials/',
-        'type': 'POST',
-        contentType: 'application/json; charset=utf-8',
-    })
-        .done(function (data) {
-            window.location.replace(log_out);
-        })
-        .fail(function(data) {
-            if(data.status !== 200) {
-                alert("failed updating material table!");
-            }
-            window.location.replace(log_out);
-        });
+    /**
+     *
+     * @param object
+     * @private
+     * @returns Material
+     */
+    static _responseToObject(object) {
+        return new Material(
+            object.id,
+            object.inStock,
+            object.stocked,
+            new Supplier(object.supplier.id, object.supplier.name),
+            new Component(object.component.id, object.component.name),
+            moment(object.createdAt),
+            object.createdBy === null ? null : object.createdBy.id
+        )
+    }
 }

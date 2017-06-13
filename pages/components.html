@@ -1,13 +1,13 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-lg-12">
-            <h1 class="page-header">recipes</h1>
+            <h1 class="page-header">Components</h1>
             <div id="failed" class="alert alert-danger" hidden></div>
 
             <div class="panel panel-default">
                 <div class="panel-heading"></div>
                 <div class="panel-body">
-                    <div id="table_recipes"></div>
+                    <div id="table_components"></div>
                 </div>
             </div>
         </div>
@@ -20,7 +20,7 @@
 
 <script>
     $(function(){
-        let table = $("#table_recipes");
+        let table = $("#table_components");
 
         table.jtable({
             fields : {
@@ -38,16 +38,16 @@
             actions : {
                 listAction : function () {
                     return new Promise((resolve, reject) => {
-                        Recipe.all()
-                            .then((recipes) => {
+                        Component.all()
+                            .then((components) => {
                                 resolve({
                                     Result : "OK",
-                                    TotalRecordCount : recipes.length,
-                                    Records : recipes
+                                    TotalRecordCount : components.length,
+                                    Records : components
                                 });
                             })
                             .catch(() => {
-                                reject('Failed fetching the recipes...');
+                                reject('Failed fetching the components...');
                             })
                     });
                 },
@@ -58,12 +58,12 @@
                  */
                 createAction: function(form) {
                     return new Promise((resolve, reject) => {
-                        let recipe = new Recipe(null, form.name);
-                        recipe.create()
-                            .then((recipeWithId) => {
+                        let component = new Component(null, form.name);
+                        component.create()
+                            .then((componentWithId) => {
                                 resolve({
                                     Result : "OK",
-                                    Record : recipeWithId
+                                    Record : componentWithId
                                 })
                             })
                             .catch((message) => {
@@ -77,12 +77,12 @@
                 /**
                  *
                  * @param id
-                 * @param {Recipe} recipe
+                 * @param {Component} component
                  * @return {Promise}
                  */
-                deleteAction: function(id, recipe) {
+                deleteAction: function(id, component) {
                     return new Promise((resolve, reject) => {
-                        recipe.destroy()
+                        component.destroy()
                             .then(() => {
                                 resolve({
                                     Result : "OK"

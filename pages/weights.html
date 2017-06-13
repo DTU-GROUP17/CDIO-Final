@@ -26,40 +26,44 @@
             fields : {
                 id : {
                     title : '#',
-                    inputTitle : 'id'
+                    inputTitle : 'id',
+                    key: true
                 },
                 name : {
                     title : "name"
                 },
-                uri : {
+                weightUri : {
                     title : "uri"
                 },
                 created_at : {
                     title : "created_at",
-                    display: function(row) {
-                        return row.record.created_at.format('DD/MM/YYYY');
-                    }
+                    edit: false,
+                    key: true
                 },
                 created_by : {
-                    title : "created_by"
+                    title : "created_by",
+                    edit: false,
+                    key: true
                 },
                 updated_at : {
                     title : "updated_at",
-                    display: function(row) {
-                        return row.record.updated_at.format('DD/MM/YYYY');
-                    }
+                    edit: false,
+                    key: true
                 },
                 updated_by : {
-                    title : "updated_by"
+                    title : "updated_by",
+                    edit: false,
+                    key: true
                 },
                 deleted_at : {
                     title : "deleted_at",
-                    display: function(row) {
-                        return row.record.deleted_at.isValid() ? row.record.deleted_at.format('DD/MM/YYYY') : null;
-                    }
+                    edit: false,
+                    key: true
                 },
                 deleted_by : {
-                    title : "deleted_by"
+                    title : "deleted_by",
+                    edit: false,
+                    key: true
                 }
             },
             div : {
@@ -68,42 +72,98 @@
             actions : {
                 listAction : function () {
                     return new Promise((resolve, reject) => {
-                            Weights.all()
+                        Weight.all()
                             .then((weights) => {
-                            let records = [];
-                            //console.log(weights);
-                    weights.forEach(function (weights){
-                        records.push({
-                            id : weights.id,
-                            name : weights.name,
-                            uri : weights.uri,
-                            created_at : weights.created_at,
-                            created_by : weights.created_by,
-                            updated_at : weights.updated_at,
-                            updated_by : weights.updated_by,
-                            deleted_at : weights.deleted_at,
-                            deleted_by : weights.deleted_by
-
-
-
-                        })
+                                resolve({
+                                    Result : "OK",
+                                    TotalRecordCount : weights.length,
+                                    Records : weights
+                                });
+                            })
+                            .catch(() => {
+                                reject('Failed fetching the weights...');
+                            })
                     });
-
-                    resolve({
-                        Result : "OK",
-                        TotalRecordCount : weights.length,
-                        Records : records
-                    });
-                })
-                    .catch(() => {
-                        reject('Failed fetching the weight...');
-                })
-                });
                 },
+                /**
+                 *
+                 * @param id
+                 * @param {Weight} weight
+                 * @return {Promise}
+                 */
+                deleteAction: function(id, weight) {
+                    return new Promise((resolve, reject) => {
+                        weight.destroy()
+                            .then(() => {
+                                resolve({
+                                    Result : "OK"
+                                });
+                            })
+                            .catch((message) => {
+                                reject({
+                                    Result : "ERROR",
+                                    Message : message
+                                })
+                            });
+                    });
+                },
+                /**
+                 *
+                 * @param form
+                 * @param {Weight} weight
+                 */
+                updateAction: function(form, weight) {
+                    weight.name = form.name;
+                    weight.uri = form.uri;
+                    return new Promise((resolve, reject) => {
+                        weight.update()
+                            .then(() => {
+                                resolve({
+                                    Result : "OK",
+                                    Record : weight
 
-                deleteAction:  '',
-                updateAction: '/Demo/UpdateStudent',
-                createAction: '/Demo/CreateStudent'
+                                })
+                            })
+                            .catch((message) => {
+                                reject({
+                                    Result : "ERROR",
+                                    Message : message
+                                })
+                            });
+                    })
+                },
+                /**
+                 *
+                 * @param {{name: string, uri: string}} form
+                 */
+                createAction: function(form) {
+                    return new Promise((resolve, reject) => {
+                        let weight = new Weight(null, form.name, form.weightUri, null, null, null, null, null, null);
+                        weight.create()
+                            .then((weightWithId) => {
+                                Weight.find(weightWithId.id)
+                                    .then((weight) => {
+                                        resolve({
+                                            Result : "OK",
+                                            Record : weight
+                                        });
+                                    })
+                                    .catch((message) => {
+                                        reject({
+                                            Result : 'ERROR',
+                                            Message : message
+                                        })
+                                    })
+
+                            })
+                            .catch((message) => {
+                                reject({
+                                    Result : "ERROR",
+                                    Message : message
+                                })
+                            });
+                    });
+                }
             }
         });
         table.jtable('load');
