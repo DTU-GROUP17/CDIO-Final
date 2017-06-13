@@ -40,33 +40,39 @@
                     display: function(row) {
                         return moment(row.record.created_at).format('DD/MM/YYYY');
                     },
-                    edit: false
+                    edit: false,
+                    key: true
                 },
                 created_by : {
                     title : "created_by",
-                    edit: false
+                    edit: false,
+                    key: true
                 },
                 updated_at : {
                     title : "updated_at",
                     display: function(row) {
                         return row.record.updated_at.isValid() ? row.record.updated_at.format('DD/MM/YYYY') : null;
                     },
-                    edit: false
+                    edit: false,
+                    key: true
                 },
                 updated_by : {
                     title : "updated_by",
-                    edit: false
+                    edit: false,
+                    key: true
                 },
                 deleted_at : {
                     title : "deleted_at",
                     display: function(row) {
                         return row.record.deleted_at.isValid() ? row.record.deleted_at.format('DD/MM/YYYY') : null;
                     },
-                    edit: false
+                    edit: false,
+                    key: true
                 },
                 deleted_by : {
                     title : "deleted_by",
-                    edit: false
+                    edit: false,
+                    key: true
                 }
             },
             div : {
@@ -135,7 +141,28 @@
                             });
                     })
                 },
-                createAction: '/Demo/CreateStudent'
+                /**
+                 *
+                 * @param {{name: string, uri: string}} form
+                 */
+                createAction: function(form) {
+                    return new Promise((resolve, reject) => {
+                        let weight = new Weight(null, form.name, form.uri);
+                        weight.create()
+                            .then((weightWithId) => {
+                                resolve({
+                                    Result : "OK",
+                                    Record : weightWithId
+                                })
+                            })
+                            .catch((message) => {
+                                reject({
+                                    Result : "ERROR",
+                                    Message : message
+                                })
+                            });
+                    });
+                }
             }
         });
         table.jtable('load');

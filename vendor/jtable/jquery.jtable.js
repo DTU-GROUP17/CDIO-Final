@@ -2177,7 +2177,7 @@
                 show: self.options.dialogShowEffect,
                 hide: self.options.dialogHideEffect,
                 modal: true,
-                title: '<i class="fa fa-exclamation-triangle"></i> '+self.options.messages.areYouSure,
+                title: ' '+self.options.messages.areYouSure,
                 buttons:
                         [{  //cancel button
                             text: self.options.messages.cancel,
