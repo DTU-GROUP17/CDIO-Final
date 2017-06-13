@@ -59,7 +59,7 @@ function Sidebar (element) {
         this.weighings = this.item('Weighings', 'fa-table', 'weighings');
         this.materials = this.item('Materials', 'fa-tree', 'materials');
         this.suppliers = this.item('Suppliers', 'fa-building-o', 'suppliers');
-        this.recipes = this.item('Recipes', 'fa-book', 'recipes');
+        this.recipes = this.item('Recipe', 'fa-book', 'recipes');
 
 
     };

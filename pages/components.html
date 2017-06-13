@@ -39,15 +39,15 @@
                 listAction : function () {
                     return new Promise((resolve, reject) => {
                         Component.all()
-                            .then((materials) => {
+                            .then((components) => {
                                 resolve({
                                     Result : "OK",
-                                    TotalRecordCount : materials.length,
-                                    Records : materials
+                                    TotalRecordCount : components.length,
+                                    Records : components
                                 });
                             })
                             .catch(() => {
-                                reject('Failed fetching the materials...');
+                                reject('Failed fetching the components...');
                             })
                     });
                 },

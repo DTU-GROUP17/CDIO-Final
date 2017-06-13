@@ -30,4 +30,8 @@ class Setting {
     static get componentURI() {
         return this.baseURI+'components/'
     }
+
+    static get recipeURI() {
+        return this.baseURI+'recipes/'
+    }
 }
