@@ -43,6 +43,42 @@ class Weight {
     });
     }
 
+    /**
+     *
+     * @returns {{name: string, uri: string}}
+     */
+    toArray() {
+        return {
+            'name' : this.name,
+            'uri' : this.uri,
+
+        }
+    }
+
+    /**
+     * @returns {string}
+     */
+    toJson() {
+        return JSON.stringify(this.toArray());
+    }
+
+    /**
+     *
+     * @returns {string}
+     */
+    toString() {
+        return this.toJson();
+    }
+
+    /**
+     * @returns {string}
+     */
+    toStringWithoutId() {
+        let array = this.toArray();
+        delete array.id;
+        return JSON.stringify(array);
+    }
+
 
     /**
      *
@@ -91,6 +127,29 @@ class Weight {
             })
                 .done(function(data) {
                     resolve(data);
+                })
+                .fail(function(message) {
+                    reject(message);
+                })
+        });
+    }
+
+    create() {
+        return new Promise((resolve, reject) => {
+            let self = this;
+            $.ajax({
+                url: Setting.weightURI,
+                type : 'POST',
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                data : this.toStringWithoutId(),
+                beforeSend : function (request) {
+                    request.setRequestHeader("Authorization", "Bearer " + Cookies.get('token'));
+                },
+            })
+                .done(function(data) {
+                    self.id = data.id;
+                    resolve(self);
                 })
                 .fail(function(message) {
                     reject(message);
