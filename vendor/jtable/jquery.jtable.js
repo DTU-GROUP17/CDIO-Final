@@ -285,56 +285,14 @@
                 }
             };
 
-
-            //listAction may be a function, check if it is
-            if ($.isFunction(self.options.actions.listAction)) {
-                //Execute the function
-                const funcResult = self.options.actions.listAction(self._lastPostData, self._createJtParamsForLoading());
-
-                // Might be a promise
-                if(funcResult instanceof Promise) {
-                    funcResult.then((data) => {
-                        completeReload(data);
-                    }).catch((message) => {
-                        this._showError(message);
-                    });
-                }
-                //Check if result is a jQuery Deferred object
-                else if (self._isDeferredObject(funcResult)) {
-
-                    funcResult.done(function(data) {
-                        completeReload(data);
-                    }).fail(function() {
-                        self._showError(self.options.messages.serverCommunicationError);
-                    });
-                } else { //assume it's the data we're loading
-                    completeReload(funcResult);
-                }
-
-            } else { //assume listAction as URL string.
-                //Generate URL (with query string parameters) to load records
-                const loadUrl = self._createRecordLoadUrl();
-
-                //Load data from server using AJAX
-                self._ajax({
-                    url: loadUrl,
-                    data: self._lastPostData,
-                    success: function (data) {
-                        completeReload(data);
-                    },
-                    error: function () {
-                        self._showError(self.options.messages.serverCommunicationError);
-                    }
-                });
-
-            }
+            this._runAsyncCode(
+                self.options.actions.listAction,
+                self._lastPostData,
+                completeReload,
+                self._createJtParamsForLoading()
+            );
         },
 
-        /* Creates URL to load records.
-        *************************************************************************/
-        _createRecordLoadUrl: function () {
-            return this.options.actions.listAction;
-        },
 
         _createJtParamsForLoading: function() {
             return {
@@ -603,9 +561,6 @@
                 funcParams = $.extend(true, {
                     _cacheCleared: false,
                     dependedValues: {},
-                    clearCache: function () {
-                        this._cacheCleared = true;
-                    }
                 }, funcParams);
 
                 //call function and get actual options source
@@ -618,8 +573,6 @@
             if (typeof optionsSource == 'string') { //It is an Url to download options
                 const cacheKey = 'options_' + fieldName + '_' + optionsSource; //create a unique cache key
                 if (funcParams._cacheCleared || (!this._cache[cacheKey])) {
-                    //if user calls clearCache() or options are not found in the cache, download options
-                    this._cache[cacheKey] = this._buildOptionsFromArray(this._downloadOptions(fieldName, optionsSource));
                     this._sortFieldOptions(this._cache[cacheKey], field.optionsSorting);
                 } else {
                     //found on cache..
@@ -628,7 +581,6 @@
                     if (funcParams.value != undefined) {
                         const optionForValue = this._findOptionByValue(this._cache[cacheKey], funcParams.value);
                         if (optionForValue.DisplayText == undefined) { //this value is not in cached options...
-                            this._cache[cacheKey] = this._buildOptionsFromArray(this._downloadOptions(fieldName, optionsSource));
                             this._sortFieldOptions(this._cache[cacheKey], field.optionsSorting);
                         }
                     }
@@ -648,30 +600,6 @@
 
         /* Download options for a field from server.
         *************************************************************************/
-        _downloadOptions: function (fieldName, url) {
-            const self = this;
-            let options = [];
-
-            self._ajax({
-                url: url,
-                async: false,
-                success: function (data) {
-                    if (data.Result != 'OK') {
-                        self._showError(data.Message);
-                        return;
-                    }
-
-                    options = data.Options;
-                },
-                error: function () {
-                    const errMessage = self._formatString(self.options.messages.cannotLoadOptionsFor, fieldName);
-                    self._showError(errMessage);
-                }
-            });
-
-            return options;
-        },
-
         /* Sorts given options according to sorting parameter.
         *  sorting can be: 'value', 'value-desc', 'text' or 'text-desc'.
         *************************************************************************/
@@ -793,65 +721,9 @@
 
         },
 
-        _unAuthorizedRequestHandler: function() {
-            if (this.options.unAuthorizedRequestRedirectUrl) {
-                location.href = this.options.unAuthorizedRequestRedirectUrl;
-            } else {
-                location.reload(true);
-            }
-        },
-
         /* This method is used to perform AJAX calls in jTable instead of direct
         * usage of jQuery.ajax method.
         *************************************************************************/
-        _ajax: function (options) {
-            const self = this;
-
-            //Handlers for HTTP status codes
-            let opts = {
-                statusCode: {
-                    401: function () { //Unauthorized
-                        self._unAuthorizedRequestHandler();
-                    }
-                }
-            };
-
-            opts = $.extend(opts, this.options.ajaxSettings, options);
-
-            //Override success
-            opts.success = function (data) {
-                //Checking for Authorization error
-                if (data && data.UnAuthorizedRequest == true) {
-                    self._unAuthorizedRequestHandler();
-                }
-
-                if (options.success) {
-                    options.success(data);
-                }
-            };
-
-            //Override error
-            opts.error = function (jqXHR, textStatus, errorThrown) {
-                if (unloadingPage) {
-                    jqXHR.abort();
-                    return;
-                }
-                
-                if (options.error) {
-                    options.error(arguments);
-                }
-            };
-
-            //Override complete
-            opts.complete = function () {
-                if (options.complete) {
-                    options.complete();
-                }
-            };
-
-            $.ajax(opts);
-        },
-
         /* Gets value of key field of a record.
         *************************************************************************/
         _getKeyValueOfRecord: function (record) {
