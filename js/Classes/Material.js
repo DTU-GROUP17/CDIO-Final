@@ -53,7 +53,7 @@ class Material extends Model{
             new Supplier(object.supplier.id, object.supplier.name),
             new Component(object.component.id, object.component.name),
             moment(object.createdAt),
-            object.createdBy === null ? null : new User(object.createdBy.id)
+            object.createdBy == null ? null : new User(object.createdBy.id)
         )
     }
 }

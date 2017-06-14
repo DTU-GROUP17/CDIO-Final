@@ -29,14 +29,11 @@
                     title : '#',
                     inputTitle : 'id'
                 },
-                product_batch_id : {
-                    title : "P.Batch.Id"
+                weight : {
+                    title : "weight"
                 },
-                material_id : {
-                    title : "Material.Id"
-                },
-                weight_id : {
-                    title : "Weight.Id"
+                material : {
+                    title : "material"
                 },
                 amount : {
                     title : "Amount"
@@ -51,7 +48,6 @@
                         Weighing.all()
                             .then((weighings) => {
                                 let records = [];
-                                //console.log(weighing);
                                 weighings.forEach(function (weighings){
                                     records.push({
                                         id : weighings.id,
@@ -71,14 +67,10 @@
                                 });
                             })
                             .catch(() => {
-                                reject('Failed fetching the weight...');
+                                reject('Failed fetching the weighings...');
                             })
                     });
                 },
-
-                deleteAction:  '',
-                updateAction: '/Demo/UpdateStudent',
-                createAction: '/Demo/CreateStudent'
             }
         });
         table.jtable('load');

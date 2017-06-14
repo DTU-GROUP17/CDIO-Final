@@ -26,12 +26,12 @@ class Weight extends Model{
             object.id,
             object.name,
             object.uri,
-            object.createdAt === null ? null : moment(object.createdAt),
-            object.createdBy === null ? null : object.createdBy.id,
-            object.updatedAt === null ? null : moment(object.updatedAt),
-            object.updatedBy === null ? null : object.updatedBy.id,
-            object.deletedAt === null ? null : moment(object.deletedAt),
-            object.deletedBy === null ? null : object.deletedBy.id
+            object.createdAt == null ? null : moment(object.createdAt),
+            object.createdBy == null ? null : object.createdBy.id,
+            object.updatedAt == null ? null : moment(object.updatedAt),
+            object.updatedBy == null ? null : object.updatedBy.id,
+            object.deletedAt == null ? null : moment(object.deletedAt),
+            object.deletedBy == null ? null : object.deletedBy.id
         );
     }
 
