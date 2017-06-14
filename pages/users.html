@@ -38,13 +38,12 @@
                     title : "roles",
                     type: "multiselectddl",
                     width: '70%',
-                    options: {
-                        Admin : 'Admin',
-                        Pharmaceud : 'Pharmaceud',
-                        Foreman : 'Foreman',
-                        Lab_Technician: 'Lab Technician'
-                    }
-
+                    options: [
+                        {
+                            Value: new Role( 1 , "Admin"),
+                            DisplayText: 'Admin'
+                        }
+                    ]
                 },
             },
             div : {
@@ -119,6 +118,7 @@
                  * @returns {Promise}
                  */
                 createAction: function(form) {
+                    console.log(form);
                     return new Promise((resolve, reject) => {
                         let user = new User(null, form.name, form.username, form.roles);
                         user.create()

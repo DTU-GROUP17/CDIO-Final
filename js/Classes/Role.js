@@ -1,11 +1,27 @@
-class Role {
+class Role extends Model{
     constructor(id, name) {
-        this.id = id;
+        super(id);
         this.name = name;
     }
 
     hasName(name) {
         return this.name === name;
+    }
+
+    toArray() {
+        return {
+            'id' : this.id,
+            'name' : this.name
+        }
+    }
+
+    toJson() {
+        return JSON.stringify(this.toArray());
+    }
+
+    fromJson(json) {
+        let data = JSON.parse(json);
+        return new Role(data.id, data.name);
     }
 
     /**

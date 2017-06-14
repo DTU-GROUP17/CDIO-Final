@@ -1062,8 +1062,9 @@
         _fillDropDownListWithOptions: function ($select, options, value) {
             $select.empty();
             for (let i = 0; i < options.length; i++) {
+                console.log(options[i].Value);
                 $('<option' + (options[i].Value == value ? ' selected="selected"' : '') + '>' + options[i].DisplayText + '</option>')
-                    .val(options[i].Value)
+                    .val(options[i].Value instanceof Model ? options[i].Value.toJson : options[i].Value)
                     .appendTo($select);
             }
         },
