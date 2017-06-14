@@ -46,14 +46,6 @@
                 items: []
             },
 
-            //Events
-            formCreated: function (event, data) { },
-            formSubmitting: function (event, data) { },
-            formClosed: function (event, data) { },
-            recordsLoaded: function (event, data) { },
-            rowInserted: function (event, data) { },
-            rowsRemoved: function (event, data) { },
-
             //Localization
             messages: {
                 serverCommunicationError: 'An error occured while communicating to the server.',
@@ -287,8 +279,6 @@
                 self._removeAllRows('reloading');
                 self._addRecordsToTable(data.Records);
 
-                self._onRecordsLoaded(data);
-
                 //Call complete callback
                 if (completeCallback) {
                     completeCallback();
@@ -425,8 +415,6 @@
                 this._$tableRows.splice(options.index, 0, $row);
             }
 
-            this._onRowInserted($row, options.isNewRow);
-
             //Show animation if needed
             if (options.isNewRow) {
                 if (this.options.animationsEnabled && options.animationsEnabled) {
@@ -470,8 +458,6 @@
                 }
             });
 
-            self._onRowsRemoved($rows, reason);
-
             //Add 'no data' row if all rows removed from table
             if (self._$tableRows.length == 0) {
                 self._addNoDataRow();
@@ -500,8 +486,6 @@
             //Remove all rows from DOM and the _$tableRows array
             this._$tableBody.empty();
             this._$tableRows = [];
-
-            this._onRowsRemoved($rows, reason);
 
             //Add 'no data' row since we removed all rows
             this._addNoDataRow();
@@ -874,22 +858,7 @@
             return record[this._keyField];
         },
 
-        /************************************************************************
-        * EVENT RAISING METHODS                                                 *
-        *************************************************************************/
-
-        _onRecordsLoaded: function (data) {
-            this._trigger("recordsLoaded", null, { records: data.Records, serverResponse: data });
-        },
-
-        _onRowInserted: function ($row, isNewRow) {
-            this._trigger("rowInserted", null, { row: $row, record: $row.data('record'), isNewRow: isNewRow });
-        },
-
-        _onRowsRemoved: function ($rows, reason) {
-            this._trigger("rowsRemoved", null, { rows: $rows, reason: reason });
-        },
-    });
+        });
 
 }(jQuery));
 
@@ -1070,17 +1039,38 @@
         * PRIVATE METHODS                                                       *
         *************************************************************************/
 
-        /* Submits a form asynchronously using AJAX.
-        *  This method is needed, since form submitting logic can be overrided
-        *  by extensions.
-        *************************************************************************/
-        _submitFormUsingAjax: function (url, formData, success, error) {
-            this._ajax({
-                url: url,
-                data: formData,
-                success: success,
-                error: error
-            });
+        _runAsyncCode: function(runFunction, dataToRunFunction, completeFunction, dataToRunFunction2) {
+            // Check if async function.
+            if(runFunction.constructor.name === 'AsyncFunction') {
+                runFunction(dataToRunFunction)
+                    .then((data) => {
+                        completeFunction({
+                            Result : "OK",
+                            Record : data
+                        });
+                    }).catch((message) => {
+                    this._showError(message);
+                });
+            }
+            //Check if it's a function.
+            else if ($.isFunction(runFunction)) {
+                //Execute the function
+                let funcResult = runFunction(dataToRunFunction, dataToRunFunction2);
+
+                // Check if it's a promise
+                if(funcResult instanceof Promise) {
+                    funcResult.then((data) => {
+                        completeFunction(data);
+                    }).catch((message) => {
+                        this._showError(message);
+                    });
+                }
+                else {
+                    this._showError(self.options.messages.notAPromise);
+                }
+            } else {
+                this._showError(self.options.messages.notAPromise);
+            }
         },
 
         /* Creates label for an input element.
@@ -1619,7 +1609,6 @@
                 close: function () {
                     const $addRecordForm = self._$addRecordDiv.find('form').first();
                     const $saveButton = self._$addRecordDiv.parent().find('#AddRecordDialogSaveButton');
-                    self._trigger("formClosed", null, { form: $addRecordForm, formType: 'create' });
                     self._setEnabledOfDialogButton($saveButton, true, self.options.messages.save);
                     $addRecordForm.remove();
                 }
@@ -1640,10 +1629,8 @@
             const $saveButton = self._$addRecordDiv.parent().find('#AddRecordDialogSaveButton');
             const $addRecordForm = self._$addRecordDiv.find('form');
 
-            if (self._trigger("formSubmitting", null, { form: $addRecordForm, formType: 'create' }) != false) {
-                self._setEnabledOfDialogButton($saveButton, false, self.options.messages.saving);
-                self._saveAddRecordForm($addRecordForm, $saveButton);
-            }
+            self._setEnabledOfDialogButton($saveButton, false, self.options.messages.saving);
+            self._saveAddRecordForm($addRecordForm, $saveButton);
         },
 
         /************************************************************************
@@ -1705,7 +1692,6 @@
 
             //Open the form
             self._$addRecordDiv.append($addRecordForm).dialog('open');
-            self._trigger("formCreated", null, { form: $addRecordForm, formType: 'create' });
         },
 
         /* Saves new added record to the server and updates table.
@@ -1733,37 +1719,11 @@
                 self._$addRecordDiv.dialog("close");
             };
 
-
-            if(self.options.actions.createAction.constructor.name === 'AsyncFunction') {
-                self.options.actions.createAction($addRecordForm.form())
-                .then((data) => {
-                    completeAddRecord({
-                        Result : "OK",
-                        Record : data
-                    });
-                }).catch((message) => {
-                    this._showError(message);
-                });
-            }
-            //Check if it's a function.
-            else if ($.isFunction(self.options.actions.createAction)) {
-                //Execute the function
-                let funcResult = self.options.actions.createAction($addRecordForm.form());
-
-                // Check if it's a promise
-                if(funcResult instanceof Promise) {
-                    funcResult.then((data) => {
-                        completeAddRecord(data);
-                    }).catch((message) => {
-                        this._showError(message);
-                    });
-                }
-                else {
-                    this._showError(self.options.messages.notAPromise);
-                }
-            } else {
-                this._showError(self.options.messages.notAPromise);
-            }
+            this._runAsyncCode(
+                self.options.actions.createAction,
+                $addRecordForm.form(),
+                completeAddRecord
+            );
         },
     });
 
@@ -1789,11 +1749,6 @@
         * DEFAULT OPTIONS / EVENTS                                              *
         *************************************************************************/
         options: {
-
-            //Events
-            recordUpdated: function (event, data) { },
-            rowUpdated: function (event, data) { },
-
             //Localization
             messages: {
                 editRecord: 'Edit'
@@ -1858,7 +1813,6 @@
                 close: function () {
                     const $editForm = self._$editDiv.find('form:first');
                     const $saveButton = self._$editDiv.parent().find('#EditDialogSaveButton');
-                    self._trigger("formClosed", null, { form: $editForm, formType: 'edit', row: self._$editingRow });
                     self._setEnabledOfDialogButton($saveButton, true, self.options.messages.save);
                     $editForm.remove();
                 }
@@ -1878,10 +1832,8 @@
 
             const $saveButton = self._$editDiv.parent().find('#EditDialogSaveButton');
             const $editForm = self._$editDiv.find('form');
-            if (self._trigger("formSubmitting", null, { form: $editForm, formType: 'edit', row: self._$editingRow }) != false) {
-                self._setEnabledOfDialogButton($saveButton, false, self.options.messages.saving);
-                self._saveEditForm($editForm, $saveButton);
-            }
+            self._setEnabledOfDialogButton($saveButton, false, self.options.messages.saving);
+            self._saveEditForm($editForm, $saveButton);
         },
 
         /************************************************************************
@@ -1988,7 +1940,6 @@
             //Open dialog
             self._$editingRow = $tableRow;
             self._$editDiv.append($editForm).dialog('open');
-            self._trigger("formCreated", null, { form: $editForm, formType: 'edit', record: record, row: $tableRow });
         },
 
         /* Saves editing form to the server and updates the record on the table.
@@ -2011,37 +1962,15 @@
 
 
                 self._$editingRow.attr('data-record-key', self._getKeyValueOfRecord(record));
-
-                self._onRecordUpdated(self._$editingRow, data);
-
-                if (self.options.animationsEnabled) {
-                    self._showUpdateAnimationForRow(self._$editingRow);
-                }
-
                 self._$editDiv.dialog("close");
             };
 
-
-            //Check if it's a function.
-            if ($.isFunction(self.options.actions.updateAction)) {
-                //Execute the function
-                let funcResult = self.options.actions.updateAction($editForm.form(), self._$editingRow.data('record'));
-
-                // Check if it's a promise
-                if(funcResult instanceof Promise) {
-                    funcResult.then((data) => {
-                        completeEdit(data);
-                    }).catch((message) => {
-                        this._showError(message);
-                    });
-                }
-                else {
-                    this._showError(self.options.messages.notAPromise);
-                }
-            } else {
-                this._showError(self.options.messages.notAPromise);
-            }
-
+            this._runAsyncCode(
+                self.options.actions.updateAction,
+                $editForm.form(),
+                completeEdit,
+                self._$editingRow.data('record')
+            );
         },
 
         /* This method ensures updating of current record with server response,
@@ -2077,35 +2006,7 @@
                 if ((displayItem != "") && (displayItem == 0)) displayItem = "0";
                 $columns.eq(this._firstDataColumnOffset + i).html(displayItem || '');
             }
-
-            this._onRowUpdated($tableRow);
         },
-
-        /* Shows 'updated' animation for a table row.
-        *************************************************************************/
-        _showUpdateAnimationForRow: function ($tableRow) {
-            let className = 'jtable-row-updated';
-            if (this.options.jqueryuiTheme) {
-                className = className + ' ui-state-highlight';
-            }
-
-            $tableRow.stop(true, true).addClass(className, 'slow', '', function () {
-                $tableRow.removeClass(className, 5000);
-            });
-        },
-
-        /************************************************************************
-        * EVENT RAISING METHODS                                                 *
-        *************************************************************************/
-
-        _onRowUpdated: function ($row) {
-            this._trigger("rowUpdated", null, { row: $row, record: $row.data('record') });
-        },
-
-        _onRecordUpdated: function ($row, data) {
-            this._trigger("recordUpdated", null, { record: $row.data('record'), row: $row, serverResponse: data });
-        }
-
     });
 
 })(jQuery);
@@ -2362,53 +2263,13 @@
 
             const postData = {};
             postData[self._keyField] = self._getKeyValueOfRecord($row.data('record'));
-            
-            //deleteAction may be a function, check if it is
-            if (!url && $.isFunction(self.options.actions.deleteAction)) {
 
-                //Execute the function
-                const funcResult = self.options.actions.deleteAction(postData, $row.data('record'));
-
-                // Might be a promise
-                if(funcResult instanceof Promise) {
-                    funcResult.then((data) => {
-                        completeDelete(data);
-                    }).catch((message) => {
-                        this._showError(message);
-                    });
-                }
-                //Check if result is a jQuery Deferred object
-                else if (self._isDeferredObject(funcResult)) {
-                    //Wait promise
-                    funcResult.done(function (data) {
-                        completeDelete(data);
-                    }).fail(function () {
-                        $row.data('deleting', false);
-                        if (error) {
-                            error(self.options.messages.serverCommunicationError);
-                        }
-                    });
-                } else { //assume it returned the deletion result
-                    completeDelete(funcResult);
-                }
-
-            } else { //Assume it's a URL string
-                //Make ajax call to delete the record from server
-                this._ajax({
-                    url: (url || self.options.actions.deleteAction),
-                    data: postData,
-                    success: function (data) {
-                        completeDelete(data);
-                    },
-                    error: function () {
-                        $row.data('deleting', false);
-                        if (error) {
-                            error(self.options.messages.serverCommunicationError);
-                        }
-                    }
-                });
-
-            }
+            this._runAsyncCode(
+                self.options.actions.deleteAction,
+                postData,
+                completeDelete,
+                $row.data('record')
+            );
         },
 
         /* Removes a row from table after a 'deleting' animation.
