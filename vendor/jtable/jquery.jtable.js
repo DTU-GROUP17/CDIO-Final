@@ -372,27 +372,6 @@
                 this._$tableRows[options.index - 1].after($row);
                 this._$tableRows.splice(options.index, 0, $row);
             }
-
-            //Show animation if needed
-            if (options.isNewRow) {
-                if (this.options.animationsEnabled && options.animationsEnabled) {
-                    this._showNewRowAnimation($row);
-                }
-            }
-        },
-
-        /* Shows created animation for a table row
-        * TODO: Make this animation cofigurable and changable
-        *************************************************************************/
-        _showNewRowAnimation: function ($tableRow) {
-            let className = 'jtable-row-created';
-            if (this.options.jqueryuiTheme) {
-                className = className + ' ui-state-highlight';
-            }
-
-            $tableRow.addClass(className, 'slow', '', function () {
-                $tableRow.removeClass(className, 5000);
-            });
         },
 
         /* Removes a row or rows (jQuery selection) from table.
@@ -704,7 +683,6 @@
                     parseInt(dateString.substr(17, 2), 10)
                 );
             } else {
-                this._logWarn('Given date is not properly formatted: ' + dateString);
                 return 'format error!';
             }
         },
@@ -823,80 +801,7 @@
             }
 
             return number;
-        },
-
-        /* Formats a string just like string.format in c#.
-        *  Example:
-        *  _formatString('Hello {0}','Halil') = 'Hello Halil'
-        *************************************************************************/
-        _formatString: function () {
-            if (arguments.length == 0) {
-                return null;
-            }
-
-            let str = arguments[0];
-            for (let i = 1; i < arguments.length; i++) {
-                const placeHolder = '{' + (i - 1) + '}';
-                str = str.replace(placeHolder, arguments[i]);
-            }
-
-            return str;
-        },
-
-        /* Checks if given object is a jQuery Deferred object.
-         */
-        _isDeferredObject: function (obj) {
-            return obj.then && obj.done && obj.fail;
-        },
-
-        //Logging methods ////////////////////////////////////////////////////////
-
-        _logDebug: function (text) {
-            if (!window.console) {
-                return;
-            }
-
-            console.log('jTable DEBUG: ' + text);
-        },
-
-        _logWarn: function (text) {
-            if (!window.console) {
-                return;
-            }
-
-            console.log('jTable WARNING: ' + text);
-        },
-
-        _logError: function (text) {
-            if (!window.console) {
-                return;
-            }
-
-            console.log('jTable ERROR: ' + text);
-        }
-
-    });
-
-    /* Fix for array.indexOf method in IE7.
-     * This code is taken from http://www.tutorialspoint.com/javascript/array_indexof.htm */
-    if (!Array.prototype.indexOf) {
-        Array.prototype.indexOf = function (elt) {
-            const len = this.length;
-            let from = Number(arguments[1]) || 0;
-            from = (from < 0)
-                 ? Math.ceil(from)
-                 : Math.floor(from);
-            if (from < 0)
-                from += len;
-            for (; from < len; from++) {
-                if (from in this &&
-                    this[from] === elt)
-                    return from;
-            }
-            return -1;
-        };
-    }
-
+        }});
 })(jQuery);
 
 
@@ -1321,54 +1226,6 @@
                 });
         },
 
-        /* Updates values of a record from given form
-        *************************************************************************/
-        _updateRecordValuesFromForm: function (record, $form) {
-            for (let i = 0; i < this._fieldList.length; i++) {
-                const fieldName = this._fieldList[i];
-                const field = this.options.fields[fieldName];
-
-                //Do not update non-editable fields
-                if (field.edit == false) {
-                    continue;
-                }
-
-                //Get field name and the input element of this field in the form
-                const $inputElement = $form.find('[name="' + fieldName + '"]');
-                if ($inputElement.length <= 0) {
-                    continue;
-                }
-
-                //Update field in record according to it's type
-                if (field.type == 'date') {
-                    const dateVal = $inputElement.val();
-                    if (dateVal) {
-                        const displayFormat = field.displayFormat || this.options.defaultDateFormat;
-                        try {
-                            const date = $.datepicker.parseDate(displayFormat, dateVal);
-                            record[fieldName] = '/Date(' + date.getTime() + ')/';
-                        } catch (e) {
-                            //TODO: Handle incorrect/different date formats
-                            this._logWarn('Date format is incorrect for field ' + fieldName + ': ' + dateVal);
-                            record[fieldName] = undefined;
-                        }
-                    } else {
-                        this._logDebug('Date is empty for ' + fieldName);
-                        record[fieldName] = undefined; //TODO: undefined, null or empty string?
-                    }
-                } else if (field.options && field.type == 'radiobutton') {
-                    const $checkedElement = $inputElement.filter(':checked');
-                    if ($checkedElement.length) {
-                        record[fieldName] = $checkedElement.val();
-                    } else {
-                        record[fieldName] = undefined;
-                    }
-                } else {
-                    record[fieldName] = $inputElement.val();
-                }
-            }
-        },
-
         /* Sets enabled/disabled state of a dialog button.
         *************************************************************************/
         _setEnabledOfDialogButton: function ($button, enabled, buttonText) {
@@ -1579,7 +1436,6 @@
                 }
 
                 if (!data.Record) {
-                    self._logError('Server must return the created Record object.');
                     self._setEnabledOfDialogButton($saveButton, true, self.options.messages.save);
                     return;
                 }
@@ -1828,7 +1684,6 @@
                 }
                 const record = self._$editingRow.data('record');
 
-                self._updateRecordValuesFromForm(record, $editForm);
                 self._updateRecordValuesFromServerResponse(record, data);
                 self._updateRowTexts(self._$editingRow);
 
