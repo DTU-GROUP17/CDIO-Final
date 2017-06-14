@@ -36,14 +36,11 @@
                 },
                 roles : {
                     title : "roles",
-                    type: "multiselectddl",
-                    width: '70%',
-                    options: [
-                        {
-                            Value: new Role( 1 , "Admin"),
-                            DisplayText: 'Admin'
-                        }
-                    ]
+                    type: "selectMultiple",
+                    values: {
+                        'Admin' : new Role(1, 'admin'),
+                        'OP shit' : new Role(2, 'crop')
+                    },
                 },
             },
             div : {
@@ -92,50 +89,22 @@
                  * @param form
                  * @param {User} user
                  */
-                updateAction: function(form, user) {
+                updateAction: async function(form, user) {
                     user.name = form.name;
                     user.username = form.username;
-                    //user.roles = form.roles;
-                    return new Promise((resolve, reject) => {
-                        user.update()
-                            .then(() => {
-                                resolve({
-                                    Result : "OK",
-                                    Record : user
-                                })
-                            })
-                            .catch((message) => {
-                                reject({
-                                    Result : "ERROR",
-                                    Message : message
-                                })
-                            });
-                    })
+                    user.roles = form.roles;
+                    await user.update();
+                    return await User.findWithRelations(user.id);
                 },
                 /**
                  *
                  * @param {{name : string, username : string, roles : [Role]}} form
                  * @returns {Promise}
                  */
-                createAction: function(form) {
-                    console.log(form);
-                    return new Promise((resolve, reject) => {
-                        let user = new User(null, form.name, form.username, form.roles);
-                        user.create()
-                            .then((userWithId) => {
-                                resolve({
-                                    Result: "OK",
-                                    Record: userWithId
-                                })
-                            })
-                            .catch((message) => {
-                                reject({
-                                    Result: "ERROR",
-                                    Message: message
-                                })
-                            });
-                    });
-                }
+                createAction : async function(form) {
+                    let user = new User(null, form.name, form.username, form.roles);
+                    return await user.createAndRefreshWithRelations();
+                },
             }
         });
         table.jtable('load');

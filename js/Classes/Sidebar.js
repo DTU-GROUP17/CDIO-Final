@@ -60,7 +60,6 @@ function Sidebar (element) {
         this.materials = this.item('Materials', 'fa-tree', 'materials');
         this.suppliers = this.item('Suppliers', 'fa-building-o', 'suppliers');
         this.recipes = this.item('Recipe', 'fa-book', 'recipes');
-// this.roles = new Role(1, Admin);
 
     };
 }

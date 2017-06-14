@@ -8,6 +8,10 @@ class Role extends Model{
         return this.name === name;
     }
 
+    toTable() {
+        return this.name;
+    }
+
     toArray() {
         return {
             'id' : this.id,
@@ -15,13 +19,8 @@ class Role extends Model{
         }
     }
 
-    toJson() {
-        return JSON.stringify(this.toArray());
-    }
-
-    fromJson(json) {
-        let data = JSON.parse(json);
-        return new Role(data.id, data.name);
+    static fromArray(array) {
+        return new Role(array.id, array.name);
     }
 
     /**

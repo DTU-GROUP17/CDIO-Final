@@ -17,11 +17,28 @@ class Model{
         }
     }
 
+    toArray() {
+        return {
+            'id' : this.id
+        }
+    }
+
     /**
      * @returns {string}
      */
     toJson() {
-        return JSON.stringify(this.toCreateArray());
+        let object = this.toArray();
+        object.isModel = true;
+        object.type = this.constructor.name;
+        return JSON.stringify(object);
+    }
+
+    static fromArray(array) {
+        return new this(array.id);
+    }
+
+    static fromJson(json) {
+        return this.fromArray(JSON.parse(json));
     }
 
     /**
@@ -169,5 +186,14 @@ class Model{
                     reject();
                 })
         });
+    }
+
+    static isModel(data) {
+        try{
+            data = JSON.parse(data);
+            return data.isModel === true && 'type' in data;
+        } catch (e) {
+            return false;
+        }
     }
 }

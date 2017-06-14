@@ -3,15 +3,6 @@
 *************************************************************************/
 (function ($) {
 
-    let unloadingPage;
-    
-    $(window).on('beforeunload', function () {
-        unloadingPage = true;
-    });
-    $(window).on('unload', function () {
-        unloadingPage = false;
-    });
-
     $.widget("hik.jtable", {
 
         /************************************************************************
@@ -22,28 +13,10 @@
             //Options
             actions: {},
             fields: {},
-            animationsEnabled: true,
-            defaultDateFormat: 'dd-mm-yyyy',
             dialogShowEffect: 'fade',
             dialogHideEffect: 'fade',
-            loadingAnimationDelay: 500,
-            saveUserPreferences: true,
-            jqueryuiTheme: false,
-            unAuthorizedRequestRedirectUrl: null,
             div : {
                 errorDialog : null
-            },
-
-            ajaxSettings: {
-                type: 'POST',
-                dataType: 'json'
-            },
-
-            toolbar: {
-                hoverAnimation: true,
-                hoverAnimationDuration: 60,
-                hoverAnimationEasing: undefined,
-                items: []
             },
 
             //Localization
@@ -231,46 +204,12 @@
         * PUBLIC METHODS                                                        *
         *************************************************************************/
 
-        /* Loads data using AJAX call, clears table and fills with new data.
-        *************************************************************************/
         load: function (postData, completeCallback) {
-            this._lastPostData = postData;
-            this._reloadTable(completeCallback);
-        },
+            let self = this;
 
-        /* Refreshes (re-loads) table data with last postData.
-        *************************************************************************/
-        reload: function (completeCallback) {
-            this._reloadTable(completeCallback);
-        },
-
-        /* Completely removes the table from it's container.
-        *************************************************************************/
-        destroy: function () {
-            this.element.empty();
-            $.Widget.prototype.destroy.call(this);
-        },
-
-        /************************************************************************
-        * PRIVATE METHODS                                                       *
-        *************************************************************************/
-
-        /* Used to change options dynamically after initialization.
-        *************************************************************************/
-        _setOption: function (key, value) {
-
-        },
-
-        /* LOADING RECORDS  *****************************************************/
-
-        /* Performs an AJAX call to reload data of the table.
-        *************************************************************************/
-        _reloadTable: function (completeCallback) {
-            const self = this;
-
-            const completeReload = function (data) {
+            let completeReload = function (data) {
                 //Show the error message if server returns error
-                if (data.Result != 'OK') {
+                if (data.Result !== 'OK') {
                     self._showError(data.message);
                     return;
                 }
@@ -287,19 +226,15 @@
 
             this._runAsyncCode(
                 self.options.actions.listAction,
-                self._lastPostData,
-                completeReload,
-                self._createJtParamsForLoading()
+                postData,
+                completeReload
             );
+
         },
 
-
-        _createJtParamsForLoading: function() {
-            return {
-                //Empty as default, paging, sorting or other extensions can override this method to add additional params to load request
-            };
-        },
-
+        /************************************************************************
+        * PRIVATE METHODS                                                       *
+        *************************************************************************/
         /* TABLE MANIPULATION METHODS *******************************************/
 
         /* Creates a row from given record
@@ -344,34 +279,14 @@
 
         /* Adds a single row to the table.
         *************************************************************************/
-        _addRow: function ($row, options) {
-            //Set defaults
-            options = $.extend({
-                index: this._$tableRows.length,
-                isNewRow: false,
-                animationsEnabled: true
-            }, options);
-
+        _addRow: function ($row) {
             //Remove 'no data' row if this is first row
             if (this._$tableRows.length <= 0) {
                 this._removeNoDataRow();
             }
-
-            //Add new row to the table according to it's index
-            options.index = this._normalizeNumber(options.index, 0, this._$tableRows.length, this._$tableRows.length);
-            if (options.index == this._$tableRows.length) {
-                //add as last row
-                this._$tableBody.append($row);
-                this._$tableRows.push($row);
-            } else if (options.index == 0) {
-                //add as first row
-                this._$tableBody.prepend($row);
-                this._$tableRows.unshift($row);
-            } else {
-                //insert to specified index
-                this._$tableRows[options.index - 1].after($row);
-                this._$tableRows.splice(options.index, 0, $row);
-            }
+            //add as last row
+            this._$tableBody.append($row);
+            this._$tableRows.push($row);
         },
 
         /* Removes a row or rows (jQuery selection) from table.
@@ -472,221 +387,13 @@
             else if(moment.isMoment(fieldValue)) {
                 return fieldValue.isValid() ? fieldValue.format('DD/MM/YYYY') : null;
             }
-
-            if (field.type === 'date') {
-                return this._getDisplayTextForDateRecordField(field, fieldValue);
-            } else if (field.type === 'checkbox') {
-                return this._getCheckBoxTextForFieldByValue(fieldName, fieldValue);
-            } else if (field.options) { //combobox or radio button list since there are options.
-                const options = this._getOptionsForField(fieldName, {
-                    record: record,
-                    value: fieldValue,
-                    source: 'list',
-                    dependedValues: this._createDependedValuesUsingRecord(record, field.dependsOn)
-                });
-                return this._findOptionByValue(options, fieldValue).DisplayText;
-            } else { //other types
+            else if(Array.isArray(fieldValue)){
+                return fieldValue.map((element) => {return element.toTable()}).join(' , ')
+            }
+            else {
                 return fieldValue;
             }
         },
-
-        /* Creates and returns an object that's properties are depended values of a record.
-        *************************************************************************/
-        _createDependedValuesUsingRecord: function (record, dependsOn) {
-            if (!dependsOn) {
-                return {};
-            }
-
-            const dependedValues = {};
-            for (let i = 0; i < dependsOn.length; i++) {
-                dependedValues[dependsOn[i]] = record[dependsOn[i]];
-            }
-
-            return dependedValues;
-        },
-
-        /* Finds an option object by given value.
-        *************************************************************************/
-        _findOptionByValue: function (options, value) {
-            for (let i = 0; i < options.length; i++) {
-                if (options[i].Value == value) {
-                    return options[i];
-                }
-            }
-
-            return {}; //no option found
-        },
-
-        /* Gets text for a date field.
-        *************************************************************************/
-        _getDisplayTextForDateRecordField: function (field, fieldValue) {
-            if (!fieldValue) {
-                return '';
-            }
-
-            const displayFormat = field.displayFormat || this.options.defaultDateFormat;
-            const date = this._parseDate(fieldValue);
-            return $.datepicker.formatDate(displayFormat, date);
-        },
-
-        /* Gets options for a field according to user preferences.
-        *************************************************************************/
-        _getOptionsForField: function (fieldName, funcParams) {
-            const field = this.options.fields[fieldName];
-            let optionsSource = field.options;
-
-            if ($.isFunction(optionsSource)) {
-                //prepare parameter to the function
-                funcParams = $.extend(true, {
-                    _cacheCleared: false,
-                    dependedValues: {},
-                }, funcParams);
-
-                //call function and get actual options source
-                optionsSource = optionsSource(funcParams);
-            }
-
-            let options;
-
-            //Build options according to it's source type
-            if (typeof optionsSource == 'string') { //It is an Url to download options
-                const cacheKey = 'options_' + fieldName + '_' + optionsSource; //create a unique cache key
-                if (funcParams._cacheCleared || (!this._cache[cacheKey])) {
-                    this._sortFieldOptions(this._cache[cacheKey], field.optionsSorting);
-                } else {
-                    //found on cache..
-                    //if this method (_getOptionsForField) is called to get option for a specific value (on funcParams.source == 'list')
-                    //and this value is not in cached options, we need to re-download options to get the unfound (probably new) option.
-                    if (funcParams.value != undefined) {
-                        const optionForValue = this._findOptionByValue(this._cache[cacheKey], funcParams.value);
-                        if (optionForValue.DisplayText == undefined) { //this value is not in cached options...
-                            this._sortFieldOptions(this._cache[cacheKey], field.optionsSorting);
-                        }
-                    }
-                }
-
-                options = this._cache[cacheKey];
-            } else if (jQuery.isArray(optionsSource)) { //It is an array of options
-                options = this._buildOptionsFromArray(optionsSource);
-                this._sortFieldOptions(options, field.optionsSorting);
-            } else { //It is an object that it's properties are options
-                options = this._buildOptionsArrayFromObject(optionsSource);
-                this._sortFieldOptions(options, field.optionsSorting);
-            }
-
-            return options;
-        },
-
-        /* Download options for a field from server.
-        *************************************************************************/
-        /* Sorts given options according to sorting parameter.
-        *  sorting can be: 'value', 'value-desc', 'text' or 'text-desc'.
-        *************************************************************************/
-        _sortFieldOptions: function (options, sorting) {
-
-            if ((!options) || (!options.length) || (!sorting)) {
-                return;
-            }
-
-            //Determine using value of text
-            let dataSelector;
-            if (sorting.indexOf('value') == 0) {
-                dataSelector = function (option) {
-                    return option.Value;
-                };
-            } else { //assume as text
-                dataSelector = function (option) {
-                    return option.DisplayText;
-                };
-            }
-
-            let compareFunc;
-            if ($.type(dataSelector(options[0])) == 'string') {
-                compareFunc = function (option1, option2) {
-                    return dataSelector(option1).localeCompare(dataSelector(option2));
-                };
-            } else { //asuume as numeric
-                compareFunc = function (option1, option2) {
-                    return dataSelector(option1) - dataSelector(option2);
-                };
-            }
-
-            if (sorting.indexOf('desc') > 0) {
-                options.sort(function (a, b) {
-                    return compareFunc(b, a);
-                });
-            } else { //assume as asc
-                options.sort(function (a, b) {
-                    return compareFunc(a, b);
-                });
-            }
-        },
-
-        /* Creates an array of options from given object.
-        *************************************************************************/
-        _buildOptionsArrayFromObject: function (options) {
-            const list = [];
-
-            $.each(options, function (propName, propValue) {
-                list.push({
-                    Value: propName,
-                    DisplayText: propValue
-                });
-            });
-
-            return list;
-        },
-
-        /* Creates array of options from giving options array.
-        *************************************************************************/
-        _buildOptionsFromArray: function (optionsArray) {
-            const list = [];
-
-            for (let i = 0; i < optionsArray.length; i++) {
-                if ($.isPlainObject(optionsArray[i])) {
-                    list.push(optionsArray[i]);
-                } else { //assumed as primitive type (int, string...)
-                    list.push({
-                        Value: optionsArray[i],
-                        DisplayText: optionsArray[i]
-                    });
-                }
-            }
-
-            return list;
-        },
-
-        /* Parses given date string to a javascript Date object.
-        *  Given string must be formatted one of the samples shown below:
-        *  /Date(1320259705710)/
-        *  2011-01-01 20:32:42 (YYYY-MM-DD HH:MM:SS)
-        *  2011-01-01 (YYYY-MM-DD)
-        *************************************************************************/
-        _parseDate: function (dateString) {
-            if (dateString.indexOf('Date') >= 0) { //Format: /Date(1320259705710)/
-                return new Date(
-                    parseInt(dateString.substr(6), 10)
-                );
-            } else if (dateString.length == 10) { //Format: 2011-01-01
-                return new Date(
-                    parseInt(dateString.substr(0, 4), 10),
-                    parseInt(dateString.substr(5, 2), 10) - 1,
-                    parseInt(dateString.substr(8, 2), 10)
-                );
-            } else if (dateString.length == 19) { //Format: 2011-01-01 20:32:42
-                return new Date(
-                    parseInt(dateString.substr(0, 4), 10),
-                    parseInt(dateString.substr(5, 2), 10) - 1,
-                    parseInt(dateString.substr(8, 2, 10)),
-                    parseInt(dateString.substr(11, 2), 10),
-                    parseInt(dateString.substr(14, 2), 10),
-                    parseInt(dateString.substr(17, 2), 10)
-                );
-            } else {
-                return 'format error!';
-            }
-        },
-
 
         /* ERROR DIALOG *********************************************************/
 
@@ -718,9 +425,9 @@
 *************************************************************************/
 (function ($) {
     $.fn.form = function() {
-        const formData = {};
-        this.find('[name]').each(function() {
-            formData[this.name] = this.value;
+        let formData = {};
+        this.find('[name]').each(function(index, $object) {
+            formData[this.name] = $($object).val();
         });
         return formData;
     };
@@ -739,7 +446,6 @@
     }));
 
     $.extend(true, $.hik.jtable.prototype, {
-
         /* Gets property value of an object recursively.
         *************************************************************************/
         _getPropertyOfObject: function (obj, propName) {
@@ -784,24 +490,7 @@
             return -1;
         },
 
-        /* Normalizes a number between given bounds or sets to a defaultValue
-        *  if it is undefined
-        *************************************************************************/
-        _normalizeNumber: function (number, min, max, defaultValue) {
-            if (number == undefined || number == null || isNaN(number)) {
-                return defaultValue;
-            }
-
-            if (number < min) {
-                return min;
-            }
-
-            if (number > max) {
-                return max;
-            }
-
-            return number;
-        }});
+        });
 })(jQuery);
 
 
@@ -817,9 +506,29 @@
         *************************************************************************/
 
         _runAsyncCode: function(runFunction, dataToRunFunction, completeFunction, dataToRunFunction2) {
+            if(dataToRunFunction !== undefined) {
+                for(let key of Object.keys(dataToRunFunction)) {
+                    // used for multi select.
+                    if(Array.isArray(dataToRunFunction[key])) {
+                        let insertOnKey = [];
+                        for(let data of dataToRunFunction[key]) {
+                            if(Model.isModel(data)) {
+                                data = JSON.parse(data);
+                                insertOnKey.push(eval(data.type).fromArray(data));
+                            }
+                        }
+                        dataToRunFunction[key] = insertOnKey;
+                    }
+                    else if(Model.isModel(dataToRunFunction[key])) {
+                        dataToRunFunction[key] = JSON.parse(dataToRunFunction[key]);
+                        dataToRunFunction[key] = eval(dataToRunFunction[key].type).fromArray(dataToRunFunction[key]);
+                    }
+                }
+            }
+
             // Check if async function.
             if(runFunction.constructor.name === 'AsyncFunction') {
-                runFunction(dataToRunFunction)
+                runFunction(dataToRunFunction, dataToRunFunction2)
                     .then((data) => {
                         completeFunction({
                             Result : "OK",
@@ -850,6 +559,15 @@
             }
         },
 
+        _responseIsSuccessful : function(response) {
+            if (response.Result !== 'OK') {
+                this._showError(data.Message);
+                this._setEnabledOfDialogButton($saveButton, true, self.options.messages.save);
+                return false;
+            }
+            return true;
+        },
+
         /* Creates label for an input element.
         *************************************************************************/
         _createInputLabelForRecordField: function (fieldName) {
@@ -860,371 +578,44 @@
         /* Creates an input element according to field type.
         *************************************************************************/
         _createInputForRecordField: function (funcParams) {
-            const fieldName = funcParams.fieldName;
+            let fieldName = funcParams.fieldName;
             let value = funcParams.value;
-            const record = funcParams.record,
-                formType = funcParams.formType,
-                form = funcParams.form;
 
             //Get the field
-            const field = this.options.fields[fieldName];
+            let field = this.options.fields[fieldName];
 
-            //If value if not supplied, use defaultValue of the field
-            if (value == undefined || value == null) {
-                value = field.defaultValue;
-            }
-
-            //Use custom function if supplied
-            if (field.input) {
-                const $input = $(field.input({
-                    value: value,
-                    record: record,
-                    formType: formType,
-                    form: form
-                }));
-
-                //Add id attribute if does not exists
-                if (!$input.attr('id')) {
-                    $input.attr('id', 'Edit-' + fieldName);
-                }
-                return $input;
-            }
-
-            //Create input according to field type
-            if (field.type == 'date') {
-                return this._createDateInputForField(field, fieldName, value);
-            } else if (field.type == 'textarea') {
-                return this._createTextAreaForField(field, fieldName, value);
-            } else if (field.type == 'password') {
-                return this._createPasswordInputForField(field, fieldName, value);
-            } else if (field.type == 'checkbox') {
-                return this._createCheckboxForField(field, fieldName, value);
-            } else if (field.options) {
-                if (field.type == 'radiobutton') {
-                    return this._createRadioButtonListForField(field, fieldName, value, record, formType);
-                } else {
-                    return this._createDropDownListForField(field, fieldName, value, record, formType, form);
-                }
+            if(field.type === 'selectMultiple') {
+                return this._createSelectMultipleForField(field, fieldName);
             } else {
                 return this._createTextInputForField(field, fieldName, value);
             }
         },
 
-        //Creates a hidden input element with given name and value.
-        _createInputForHidden: function (fieldName, value) {
-            if (value == undefined) {
-                value = "";
+        _createSelectMultipleForField: function(field, fieldName) {
+            let $input = $('<select multiple name="'+fieldName+'"/>');
+            for(let key of Object.keys(field.values)) {
+                let value = field.values[key] instanceof Model ? field.values[key].toString() : field.values[key];
+                $input.append($('<option>'+key+'</option>').val(value));
             }
 
-            return $('<input type="hidden" name="' + fieldName + '" id="Edit-' + fieldName + '"></input>')
-                .val(value);
-        },
-
-        /* Creates a date input for a field.
-        *************************************************************************/
-        _createDateInputForField: function (field, fieldName, value) {
-            const $input = $('<input class="' + field.inputClass + '" id="Edit-' + fieldName + '" type="text" name="' + fieldName + '"></input>');
-            if(value != undefined) {
-                $input.val(value);
-            }
-            
-            const displayFormat = field.displayFormat || this.options.defaultDateFormat;
-            $input.datepicker({ dateFormat: displayFormat });
-            return $('<div />')
-                .addClass('jtable-input jtable-date-input')
-                .append($input);
-        },
-
-        /* Creates a textarea element for a field.
-        *************************************************************************/
-        _createTextAreaForField: function (field, fieldName, value) {
-            const $textArea = $('<textarea class="' + field.inputClass + '" id="Edit-' + fieldName + '" name="' + fieldName + '"></textarea>');
-            if (value != undefined) {
-                $textArea.val(value);
-            }
-            
-            return $('<div />')
-                .addClass('jtable-input jtable-textarea-input')
-                .append($textArea);
-        },
-
-        /* Creates a standart textbox for a field.
-        *************************************************************************/
-        _createTextInputForField: function (field, fieldName, value) {
-            const $input = $('<input class="' + field.inputClass + '" id="Edit-' + fieldName + '" type="text" name="' + fieldName + '"></input>');
-            if (value != undefined) {
-                $input.val(value);
-            }
-            
             return $input.addClass('form-control');
         },
 
-        /* Creates a password input for a field.
-        *************************************************************************/
-        _createPasswordInputForField: function (field, fieldName, value) {
-            const $input = $('<input class="' + field.inputClass + '" id="Edit-' + fieldName + '" type="password" name="' + fieldName + '"></input>');
+        /**
+         * Creates a standard text input field.
+         *
+         * @param field
+         * @param fieldName
+         * @param value
+         * @private
+         */
+        _createTextInputForField: function (field, fieldName, value) {
+            let $input = $('<input class="' + field.inputClass + '" id="Edit-' + fieldName + '" type="text" name="' + fieldName + '"/>');
             if (value != undefined) {
                 $input.val(value);
             }
-            
-            return $('<div />')
-                .addClass('jtable-input jtable-password-input')
-                .append($input);
-        },
 
-        /* Creates a checkboxfor a field.
-        *************************************************************************/
-        _createCheckboxForField: function (field, fieldName, value) {
-            const self = this;
-
-            //If value is undefined, get unchecked state's value
-            if (value == undefined) {
-                value = self._getCheckBoxPropertiesForFieldByState(fieldName, false).Value;
-            }
-
-            //Create a container div
-            const $containerDiv = $('<div />')
-                .addClass('jtable-input jtable-checkbox-input');
-
-            //Create checkbox and check if needed
-            const $checkBox = $('<input class="' + field.inputClass + '" id="Edit-' + fieldName + '" type="checkbox" name="' + fieldName + '" />')
-                .appendTo($containerDiv);
-            if (value != undefined) {
-                $checkBox.val(value);
-            }
-
-            //Create display text of checkbox for current state
-            const $textSpan = $('<span>' + (field.formText || self._getCheckBoxTextForFieldByValue(fieldName, value)) + '</span>')
-                .appendTo($containerDiv);
-
-            //Check the checkbox if it's value is checked-value
-            if (self._getIsCheckBoxSelectedForFieldByValue(fieldName, value)) {
-                $checkBox.attr('checked', 'checked');
-            }
-
-            //This method sets checkbox's value and text according to state of the checkbox
-            const refreshCheckBoxValueAndText = function () {
-                const checkboxProps = self._getCheckBoxPropertiesForFieldByState(fieldName, $checkBox.is(':checked'));
-                $checkBox.attr('value', checkboxProps.Value);
-                $textSpan.html(field.formText || checkboxProps.DisplayText);
-            };
-
-            //Register to click event to change display text when state of checkbox is changed.
-            $checkBox.click(function () {
-                refreshCheckBoxValueAndText();
-            });
-
-            //Change checkbox state when clicked to text
-            if (field.setOnTextClick != false) {
-                $textSpan
-                    .addClass('jtable-option-text-clickable')
-                    .click(function () {
-                        if ($checkBox.is(':checked')) {
-                            $checkBox.attr('checked', false);
-                        } else {
-                            $checkBox.attr('checked', true);
-                        }
-
-                        refreshCheckBoxValueAndText();
-                    });
-            }
-
-            return $containerDiv;
-        },
-
-        /* Creates a drop down list (combobox) input element for a field.
-        *************************************************************************/
-        _createDropDownListForField: function (field, fieldName, value, record, source, form) {
-
-            //Create a container div
-            const $containerDiv = $('<div />')
-                .addClass('jtable-input jtable-dropdown-input');
-
-            //Create select element
-            const $select = $('<select class="' + field.inputClass + '" id="Edit-' + fieldName + '" name="' + fieldName + '"></select>')
-                .appendTo($containerDiv);
-
-            //add options
-            const options = this._getOptionsForField(fieldName, {
-                record: record,
-                source: source,
-                form: form,
-                dependedValues: this._createDependedValuesUsingForm(form, field.dependsOn)
-            });
-
-            this._fillDropDownListWithOptions($select, options, value);
-
-            return $containerDiv;
-        },
-        
-        /* Fills a dropdown list with given options.
-        *************************************************************************/
-        _fillDropDownListWithOptions: function ($select, options, value) {
-            $select.empty();
-            for (let i = 0; i < options.length; i++) {
-                console.log(options[i].Value);
-                $('<option' + (options[i].Value == value ? ' selected="selected"' : '') + '>' + options[i].DisplayText + '</option>')
-                    .val(options[i].Value instanceof Model ? options[i].Value.toJson : options[i].Value)
-                    .appendTo($select);
-            }
-        },
-
-        /* Creates depended values object from given form.
-        *************************************************************************/
-        _createDependedValuesUsingForm: function ($form, dependsOn) {
-            if (!dependsOn) {
-                return {};
-            }
-
-            const dependedValues = {};
-
-            for (let i = 0; i < dependsOn.length; i++) {
-                const dependedField = dependsOn[i];
-
-                const $dependsOn = $form.find('select[name=' + dependedField + ']');
-                if ($dependsOn.length <= 0) {
-                    continue;
-                }
-
-                dependedValues[dependedField] = $dependsOn.val();
-            }
-
-
-            return dependedValues;
-        },
-
-        /* Creates a radio button list for a field.
-        *************************************************************************/
-        _createRadioButtonListForField: function (field, fieldName, value, record, source) {
-            const $containerDiv = $('<div />')
-                .addClass('jtable-input jtable-radiobuttonlist-input');
-
-            const options = this._getOptionsForField(fieldName, {
-                record: record,
-                source: source
-            });
-
-            $.each(options, function(i, option) {
-                const $radioButtonDiv = $('<div class=""></div>')
-                    .addClass('jtable-radio-input')
-                    .appendTo($containerDiv);
-
-                const $radioButton = $('<input type="radio" id="Edit-' + fieldName + '-' + i + '" class="' + field.inputClass + '" name="' + fieldName + '"' + ((option.Value == (value + '')) ? ' checked="true"' : '') + ' />')
-                    .val(option.Value)
-                    .appendTo($radioButtonDiv);
-
-                const $textSpan = $('<span></span>')
-                    .html(option.DisplayText)
-                    .appendTo($radioButtonDiv);
-
-                if (field.setOnTextClick != false) {
-                    $textSpan
-                        .addClass('jtable-option-text-clickable')
-                        .click(function () {
-                            if (!$radioButton.is(':checked')) {
-                                $radioButton.attr('checked', true);
-                            }
-                        });
-                }
-            });
-
-            return $containerDiv;
-        },
-
-        /* Gets display text for a checkbox field.
-        *************************************************************************/
-        _getCheckBoxTextForFieldByValue: function (fieldName, value) {
-            return this.options.fields[fieldName].values[value];
-        },
-
-        /* Returns true if given field's value must be checked state.
-        *************************************************************************/
-        _getIsCheckBoxSelectedForFieldByValue: function (fieldName, value) {
-            return (this._createCheckBoxStateArrayForFieldWithCaching(fieldName)[1].Value.toString() == value.toString());
-        },
-
-        /* Gets an object for a checkbox field that has Value and DisplayText
-        *  properties.
-        *************************************************************************/
-        _getCheckBoxPropertiesForFieldByState: function (fieldName, checked) {
-            return this._createCheckBoxStateArrayForFieldWithCaching(fieldName)[(checked ? 1 : 0)];
-        },
-
-        /* Calls _createCheckBoxStateArrayForField with caching.
-        *************************************************************************/
-        _createCheckBoxStateArrayForFieldWithCaching: function (fieldName) {
-            const cacheKey = 'checkbox_' + fieldName;
-            if (!this._cache[cacheKey]) {
-
-                this._cache[cacheKey] = this._createCheckBoxStateArrayForField(fieldName);
-            }
-
-            return this._cache[cacheKey];
-        },
-
-        /* Creates a two element array of objects for states of a checkbox field.
-        *  First element for unchecked state, second for checked state.
-        *  Each object has two properties: Value and DisplayText
-        *************************************************************************/
-        _createCheckBoxStateArrayForField: function (fieldName) {
-            const stateArray = [];
-            let currentIndex = 0;
-            $.each(this.options.fields[fieldName].values, function (propName, propValue) {
-                if (currentIndex++ < 2) {
-                    stateArray.push({ 'Value': propName, 'DisplayText': propValue });
-                }
-            });
-
-            return stateArray;
-        },
-
-        /* Searches a form for dependend dropdowns and makes them cascaded.
-        */
-        _makeCascadeDropDowns: function ($form, record, source) {
-            const self = this;
-
-            $form.find('select') //for each combobox
-                .each(function () {
-                    const $thisDropdown = $(this);
-
-                    //get field name
-                    let fieldName = $thisDropdown.attr('name');
-                    if (!fieldName) {
-                        return;
-                    }
-
-                    const field = self.options.fields[fieldName];
-                    
-                    //check if this combobox depends on others
-                    if (!field.dependsOn) {
-                        return;
-                    }
-
-                    //for each dependency
-                    $.each(field.dependsOn, function (index, dependsOnField) {
-                        //find the depended combobox
-                        const $dependsOnDropdown = $form.find('select[name=' + dependsOnField + ']');
-                        //when depended combobox changes
-                        $dependsOnDropdown.change(function () {
-
-                            //Refresh options
-                            const funcParams = {
-                                record: record,
-                                source: source,
-                                form: $form,
-                                dependedValues: {}
-                            };
-                            funcParams.dependedValues = self._createDependedValuesUsingForm($form, field.dependsOn);
-                            const options = self._getOptionsForField(fieldName, funcParams);
-
-                            //Fill combobox with new options
-                            self._fillDropDownListWithOptions($thisDropdown, options, undefined);
-
-                            //Thigger change event to refresh multi cascade dropdowns.
-                            $thisDropdown.change();
-                        });
-                    });
-                });
+            return $input.addClass('form-control');
         },
 
         /* Sets enabled/disabled state of a dialog button.
@@ -1391,11 +782,6 @@
                     continue;
                 }
 
-                if (field.type == 'hidden') {
-                    $addRecordForm.append(self._createInputForHidden(fieldName, field.defaultValue));
-                    continue;
-                }
-
                 //Create a container div for this input field and add to form
                 const $fieldContainer = $('<div />')
                     .addClass('form-group')
@@ -1413,8 +799,6 @@
                     }));
             }
 
-            self._makeCascadeDropDowns($addRecordForm, undefined, 'create');
-
             $addRecordForm.submit(function () {
                 self._onSaveClickedOnCreateForm();
                 return false;
@@ -1427,12 +811,10 @@
         /* Saves new added record to the server and updates table.
         *************************************************************************/
         _saveAddRecordForm: function ($addRecordForm, $saveButton) {
-            const self = this;
+            let self = this;
 
-            const completeAddRecord = function (data) {
-                if (data.Result != 'OK') {
-                    self._showError(data.Message);
-                    self._setEnabledOfDialogButton($saveButton, true, self.options.messages.save);
+            let completeAddRecord = function (data) {
+                if (!self._responseIsSuccessful(data)) {
                     return;
                 }
 
@@ -1562,7 +944,7 @@
             const $saveButton = self._$editDiv.parent().find('#EditDialogSaveButton');
             const $editForm = self._$editDiv.find('form');
             self._setEnabledOfDialogButton($saveButton, false, self.options.messages.saving);
-            self._saveEditForm($editForm, $saveButton);
+            self._saveEditForm($editForm);
         },
 
         /************************************************************************
@@ -1619,25 +1001,14 @@
                 const field = self.options.fields[fieldName];
                 const fieldValue = record[fieldName];
 
-                if (field.key == true) {
-                    if (field.edit != true) {
-                        //Create hidden field for key
-                        $editForm.append(self._createInputForHidden(fieldName, fieldValue));
-                        continue;
-                    } else {
-                        //Create a special hidden field for key (since key is be editable)
-                        $editForm.append(self._createInputForHidden('jtRecordKey', fieldValue));
-                    }
-                }
-
-                //Do not create element for non-editable fields
-                if (field.edit == false) {
+                // Add key field to form
+                if (field.key === true) {
+                    $editForm.append($('<input type="hidden" name="' + fieldName + '" id="Edit-' + fieldName + '"/>').val(fieldValue));
                     continue;
                 }
 
-                //Hidden field
-                if (field.type == 'hidden') {
-                    $editForm.append(self._createInputForHidden(fieldName, fieldValue));
+                //Do not create element for non-editable fields
+                if (field.edit === false) {
                     continue;
                 }
 
@@ -1658,8 +1029,6 @@
                         form: $editForm
                     }));
             }
-            
-            self._makeCascadeDropDowns($editForm, record, 'edit');
 
             $editForm.submit(function () {
                 self._onSaveClickedOnEditForm();
@@ -1673,17 +1042,14 @@
 
         /* Saves editing form to the server and updates the record on the table.
         *************************************************************************/
-        _saveEditForm: function ($editForm, $saveButton) {
-            const self = this;
+        _saveEditForm: function ($editForm) {
+            let self = this;
             
-            const completeEdit = function (data) {
-
-                if (data.Result != 'OK') {
-                    self._showError(data.Message);
-                    self._setEnabledOfDialogButton($saveButton, true, self.options.messages.save);
+            let completeEdit = function (data) {
+                if (!self._responseIsSuccessful(data)) {
                     return;
                 }
-                const record = self._$editingRow.data('record');
+                let record = self._$editingRow.data('record');
 
                 self._updateRecordValuesFromServerResponse(record, data);
                 self._updateRowTexts(self._$editingRow);
@@ -1715,13 +1081,7 @@
         /* Gets text for a field of a record according to it's type.
         *************************************************************************/
         _getValueForRecordField: function (record, fieldName) {
-            const field = this.options.fields[fieldName];
-            const fieldValue = record[fieldName];
-            if (field.type == 'date') {
-                return this._getDisplayTextForDateRecordField(field, fieldValue);
-            } else {
-                return fieldValue;
-            }
+            return record[fieldName];
         },
 
         /* Updates cells of a table row's text values from row's record values.
@@ -2005,15 +1365,8 @@
         _removeRowsFromTableWithAnimation: function ($rows, animationsEnabled) {
             const self = this;
 
-            if (animationsEnabled == undefined) {
-                animationsEnabled = self.options.animationsEnabled;
-            }
-
             if (animationsEnabled) {
                 let className = 'jtable-row-deleting';
-                if (this.options.jqueryuiTheme) {
-                    className = className + ' ui-state-disabled';
-                }
 
                 //Stop current animation (if does exists) and begin 'deleting' animation.
                 $rows.stop(true, true).addClass(className, 'slow', '').promise().done(function () {
