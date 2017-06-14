@@ -15,10 +15,6 @@ class Batch extends Model{
         return  Setting.batchURI;
     }
 
-    get uri() {
-        return  Setting.batchURI;
-    }
-
     /**
      *
      * @param object
@@ -33,7 +29,7 @@ class Batch extends Model{
         )
     }
 
-    toArray() {
+    toCreateArray() {
         return {
             id : this.id,
             recipe : this.recipe.id

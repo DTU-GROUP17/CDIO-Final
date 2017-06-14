@@ -15,10 +15,6 @@ class Weight extends Model{
         return Setting.weightURI;
     }
 
-    get uri() {
-        return Setting.weightURI;
-    }
-
     /**
      *
      * @param object
@@ -43,7 +39,7 @@ class Weight extends Model{
      *
      * @returns {{id: int, name: string, uri: string}}
      */
-    toArray() {
+    toCreateArray() {
         return {
             'id' : this.id,
             'name' : this.name,

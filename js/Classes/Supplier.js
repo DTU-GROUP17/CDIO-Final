@@ -14,10 +14,6 @@ class Supplier extends Model{
         return  Setting.supplierURI;
     }
 
-    get uri() {
-        return  Setting.supplierURI;
-    }
-
     /**
      *
      * @param object
@@ -42,7 +38,7 @@ class Supplier extends Model{
                 type : 'PATCH',
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
-                data : this.toStringWithoutId(),
+                data : this.toCreateResponse(),
                 beforeSend : function (request) {
                     request.setRequestHeader("Authorization", "Bearer " + Cookies.get('token'));
                 },
@@ -60,7 +56,7 @@ class Supplier extends Model{
      *
      * @returns {{id : int, name: string}}
      */
-    toArray() {
+    toCreateArray() {
         return {
             'id' : this.id,
             'name' : this.name,

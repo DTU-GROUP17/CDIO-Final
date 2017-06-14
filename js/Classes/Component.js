@@ -13,10 +13,6 @@ class Component extends Model{
         return  Setting.componentURI;
     }
 
-    get uri() {
-        return  Setting.componentURI;
-    }
-
     /**
      *
      * @param object
@@ -34,7 +30,7 @@ class Component extends Model{
         return this.name;
     }
 
-    toArray() {
+    toCreateArray() {
         return {
             id : this.id,
             name : this.name

@@ -8,15 +8,10 @@ class Model{
         throw new ReferenceError('URI is not set on the model');
     }
 
-    get uri() {
-        throw new ReferenceError('URI is not set on the model');
-    }
-
-
     /**
      * @returns {{id : int}}
      */
-    toArray() {
+    toCreateArray() {
         return {
             'id' : this.id
         }
@@ -26,7 +21,7 @@ class Model{
      * @returns {string}
      */
     toJson() {
-        return JSON.stringify(this.toArray());
+        return JSON.stringify(this.toCreateArray());
     }
 
     /**
@@ -40,8 +35,8 @@ class Model{
     /**
      * @returns {string}
      */
-    toStringWithoutId() {
-        let array = this.toArray();
+    toCreateResponse() {
+        let array = this.toCreateArray();
         delete array.id;
         return JSON.stringify(array);
     }
@@ -57,11 +52,11 @@ class Model{
         return new Promise((resolve, reject) => {
             let self = this;
             $.ajax({
-                url: this.uri,
+                url: this.constructor.uri,
                 type : 'POST',
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
-                data : this.toStringWithoutId(),
+                data : this.toCreateResponse(),
                 beforeSend : function (request) {
                     request.setRequestHeader("Authorization", "Bearer " + Cookies.get('token'));
                 },
@@ -76,23 +71,14 @@ class Model{
         });
     }
 
-    createAndRefresh() {
-        return new Promise((resolve, reject) => {
-            this.create()
-                .then((model) => {
-                    this.constructor.find(model.id)
-                        .then((model) => {
-                            resolve(model);
-                        })
-                        .catch((message) => {
-                            reject(message);
-                        })
-                })
-                .catch((message) => {
-                    reject(message);
-                })
-        })
+    async createAndRefresh() {
+        let model = await this.create();
+        return await this.constructor.findWithRelations(model.id);
+    }
 
+    async createAndRefreshWithRelations() {
+        let model = await this.create();
+        return await this.constructor.findWithRelations(model.id);
     }
 
     /**
@@ -102,7 +88,7 @@ class Model{
     destroy() {
         return new Promise((resolve, reject) => {
             $.ajax({
-                url: this.uri+this.id,
+                url: this.constructor.uri+this.id,
                 type : 'DELETE',
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
@@ -147,6 +133,18 @@ class Model{
                     reject(message);
                 })
         })
+    }
+
+    static async findWithRelations(id) {
+        let model = this._responseToObject(await this.find(id));
+
+        for(let key of Object.keys(model)) {
+            if (model[key] instanceof Model) {
+                model[key] = await model[key].constructor.find(model[key].id);
+            }
+        }
+        return model;
+
     }
 
     static all(token = null) {

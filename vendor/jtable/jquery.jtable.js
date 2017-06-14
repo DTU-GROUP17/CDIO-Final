@@ -1733,8 +1733,20 @@
                 self._$addRecordDiv.dialog("close");
             };
 
+
+            if(self.options.actions.createAction.constructor.name === 'AsyncFunction') {
+                self.options.actions.createAction($addRecordForm.form())
+                .then((data) => {
+                    completeAddRecord({
+                        Result : "OK",
+                        Record : data
+                    });
+                }).catch((message) => {
+                    this._showError(message);
+                });
+            }
             //Check if it's a function.
-            if ($.isFunction(self.options.actions.createAction)) {
+            else if ($.isFunction(self.options.actions.createAction)) {
                 //Execute the function
                 let funcResult = self.options.actions.createAction($addRecordForm.form());
 
