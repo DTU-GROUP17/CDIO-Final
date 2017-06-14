@@ -13,10 +13,6 @@ class Recipe extends Model{
         return  Setting.recipeURI;
     }
 
-    get uri() {
-        return  Setting.recipeURI;
-    }
-
     /**
      *
      * @param object
@@ -34,7 +30,7 @@ class Recipe extends Model{
         return this.name;
     }
 
-    toArray() {
+    toCreateArray() {
         return {
             id : this.id,
             name : this.name

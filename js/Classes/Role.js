@@ -1,11 +1,26 @@
-class Role {
+class Role extends Model{
     constructor(id, name) {
-        this.id = id;
+        super(id);
         this.name = name;
     }
 
     hasName(name) {
         return this.name === name;
+    }
+
+    toTable() {
+        return this.name;
+    }
+
+    toArray() {
+        return {
+            'id' : this.id,
+            'name' : this.name
+        }
+    }
+
+    static fromArray(array) {
+        return new Role(array.id, array.name);
     }
 
     /**

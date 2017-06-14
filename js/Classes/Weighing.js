@@ -1,10 +1,34 @@
-class Weighing {
-    constructor(id, product_batch_id, material_id, weighing_id, amount) {
-        this.id = id;
-        this.product_batch_id = product_batch_id;
-        this.material_id = material_id;
-        this.weight_id = weighing_id;
+class Weighing extends Model{
+    constructor(id, amount, material, weight) {
+        super(id);
+        this.material = material;
+        this.weight = weight;
         this.amount = amount;
+    }
+
+    static get uri(){
+        return Setting.weighingURI;
+    }
+
+    toArray() {
+        return {
+            'id' : this.id
+        }
+    }
+
+    /**
+     *
+     * @param {{}} object
+     * @private
+     * @returns Weighing
+     */
+    static _responseToObject(object) {
+        return new Weighing(
+            object.id,
+            object.amount,
+            Material._responseToObject(object.material),
+            Weight._responseToObject(object.weight)
+        )
     }
 }
 

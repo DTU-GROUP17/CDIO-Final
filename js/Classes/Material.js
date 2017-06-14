@@ -27,14 +27,10 @@ class Material extends Model{
         return Setting.materialURI;
     }
 
-    get uri() {
-        return Setting.materialURI;
-    }
-
     /**
      * @returns {{id: int, supplier: int, component: int, stocked: float}}
      */
-    toArray() {
+    toCreateArray() {
         return {
             'id' : this.id,
             'supplier' : this.supplier.id,
@@ -57,7 +53,7 @@ class Material extends Model{
             new Supplier(object.supplier.id, object.supplier.name),
             new Component(object.component.id, object.component.name),
             moment(object.createdAt),
-            object.createdBy === null ? null : object.createdBy.id
+            object.createdBy == null ? null : new User(object.createdBy.id)
         )
     }
 }

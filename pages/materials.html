@@ -75,52 +75,11 @@
                 /**
                  *
                  * @param {{stocked: float, component: int, supplier: int}} form
-                 * @returns {Promise}
+                 * @returns
                  */
-                createAction : function(form) {
-                    return new Promise((resolve, reject) => {
-                        Supplier.find(form.supplier)
-                            .then((supplier) => {
-                                Component.find(form.component)
-                                    .then((component) => {
-                                        let material = new Material(null, null, form.stocked, supplier, component, null, null);
-                                        material.create()
-                                            .then((materialWithId) => {
-                                                Material.find(materialWithId.id)
-                                                    .then((material) => {
-                                                        resolve({
-                                                            Result : "OK",
-                                                            Record : material
-                                                        })
-                                                    })
-                                                    .catch(() => {
-                                                        reject({
-                                                            Result : "ERROR",
-                                                            Message : message
-                                                        })
-                                                    })
-                                            })
-                                            .catch((message) => {
-                                                reject({
-                                                    Result : "ERROR",
-                                                    Message : message
-                                                })
-                                            });
-                                    })
-                                    .catch((message) => {
-                                        reject({
-                                            Result : "ERROR",
-                                            Message : message
-                                        });
-                                    });
-                            })
-                            .catch((message) => {
-                                reject({
-                                    Result : "ERROR",
-                                    Message : message
-                                });
-                            });
-                    })
+                createAction : async function(form) {
+                    let material = new Material(null, null, form.stocked, new Supplier(form.supplier), new Component(form.component), null, null);
+                    return await material.createAndRefreshWithRelations();
                 }
             }
         });

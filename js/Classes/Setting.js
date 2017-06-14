@@ -38,4 +38,8 @@ class Setting {
     static get batchURI() {
         return this.baseURI+'batches/'
     }
+
+    static get weighingURI() {
+        return this.baseURI+'weighings/'
+    }
 }

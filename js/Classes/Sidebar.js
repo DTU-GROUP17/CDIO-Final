@@ -61,6 +61,5 @@ function Sidebar (element) {
         this.suppliers = this.item('Suppliers', 'fa-building-o', 'suppliers');
         this.recipes = this.item('Recipe', 'fa-book', 'recipes');
 
-
     };
 }

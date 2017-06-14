@@ -12,10 +12,6 @@ class User extends Model{
         return Setting.userURI;
     }
 
-    get uri() {
-        return Setting.userURI;
-    }
-
     hasRole(role) {
         for (let i = 0; i < this.roles.length; i++) {
             if(this.roles[i].hasName(role) ) {
@@ -63,7 +59,7 @@ class User extends Model{
                 beforeSend : function (request) {
                     request.setRequestHeader("Authorization", "Bearer " + Cookies.get('token'));
                 },
-                data : this.toStringWithoutId()
+                data : this.toCreateResponse()
             })
                 .done(function(data) {
                     resolve(data);
@@ -78,7 +74,7 @@ class User extends Model{
      *
      * @returns {{id : int, name: string, username: string, roles: [int]}}
      */
-    toArray() {
+    toCreateArray() {
         let roles = [];
         if(this.roles instanceof Array) {
             this.roles.forEach(function (role){
