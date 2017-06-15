@@ -113,8 +113,9 @@
                  * @param {Weight} weight
                  */
                 updateAction: function(form, weight) {
+                    console.log(form);
                     weight.name = form.name;
-                    weight.uri = form.uri;
+                    weight.weightUri = form.weightUri;
                     return new Promise((resolve, reject) => {
                         weight.update()
                             .then(() => {

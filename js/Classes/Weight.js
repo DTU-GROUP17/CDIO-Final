@@ -47,6 +47,10 @@ class Weight extends Model{
         }
     }
 
+    toTable() {
+        return this.name;
+    }
+
     /**
      *
      * @return {Promise}

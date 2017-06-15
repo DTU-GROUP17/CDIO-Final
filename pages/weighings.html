@@ -33,7 +33,7 @@
                     title : "weight"
                 },
                 material : {
-                    title : "material"
+                    title : "material id"
                 },
                 amount : {
                     title : "Amount"
@@ -47,23 +47,10 @@
                     return new Promise((resolve, reject) => {
                         Weighing.all()
                             .then((weighings) => {
-                                let records = [];
-                                weighings.forEach(function (weighings){
-                                    records.push({
-                                        id : weighings.id,
-                                        product_batch_id : weighings.product_batch_id,
-                                        material_id : weighings.material_id,
-                                        weight_id : weighings.weight_id,
-                                        amount : weighings.amount,
-
-
-                                    })
-                                });
-
                                 resolve({
                                     Result : "OK",
                                     TotalRecordCount : weighings.length,
-                                    Records : records
+                                    Records : weighings
                                 });
                             })
                             .catch(() => {
