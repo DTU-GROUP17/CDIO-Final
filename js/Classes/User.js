@@ -1,11 +1,12 @@
 class User extends Model{
-    constructor(id, name, username, roles, token = null, self = false) {
+    constructor(id, name, username, roles, token = null, self = false, password = "") {
         super(id);
         this.token = token;
         this.name = name;
         this.roles = roles;
         this.username = username;
         this.self = self;
+        this.password = password;
     }
 
     static get uri() {
@@ -87,7 +88,8 @@ class User extends Model{
             'id' : this.id,
             'name' : this.name,
             'username' : this.username,
-            'roles' : roles
+            'roles' : roles,
+            'password' : this.password
         }
     }
 
