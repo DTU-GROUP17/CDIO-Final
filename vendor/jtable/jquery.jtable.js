@@ -173,8 +173,8 @@
         *************************************************************************/
         _addColumnsToHeaderRow: function ($tr) {
             for (let i = 0; i < this._columnList.length; i++) {
-                const fieldName = this._columnList[i];
-                const $headerCell = this._createHeaderCellForField(fieldName, this.options.fields[fieldName]);
+                let fieldName = this._columnList[i];
+                let $headerCell = this._createHeaderCellForField(fieldName, this.options.fields[fieldName]);
                 $headerCell.appendTo($tr);
             }
         },
@@ -183,7 +183,10 @@
         *  Returns th jQuery object.
         *************************************************************************/
         _createHeaderCellForField: function (fieldName, field) {
-            return $('<th></th>').html(field.title);
+            if(!field.hidden) {
+                return $('<th></th>').html(field.title);
+            }
+            return $('');
         },
 
         /* Creates an empty header cell that can be used as command column headers.
@@ -261,9 +264,12 @@
         /* Create a cell for given field.
         *************************************************************************/
         _createCellForRecordField: function (record, fieldName) {
-            return $('<td></td>')
-                .addClass(this.options.fields[fieldName].listClass)
-                .append((this._getDisplayTextForRecordField(record, fieldName)));
+            let options = this.options.fields[fieldName];
+            if(!options.hidden) {
+                return $('<td></td>')
+                    .append((this._getDisplayTextForRecordField(record, fieldName)));
+            }
+            return $();
         },
 
         /* Adds a list of records to the table.

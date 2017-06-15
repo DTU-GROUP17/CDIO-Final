@@ -44,6 +44,10 @@
                         'Lab Technician' : new Role(4, 'Lab Technician')
                     },
                 },
+                password : {
+                    title : 'password',
+                    hidden: true
+                }
             },
             div : {
                 errorDialog : $('#failed')
@@ -95,16 +99,17 @@
                     user.name = form.name;
                     user.username = form.username;
                     user.roles = form.roles;
+                    user.password = form.password;
                     await user.update();
                     return await User.findWithRelations(user.id);
                 },
                 /**
                  *
-                 * @param {{name : string, username : string, roles : [Role]}} form
+                 * @param {{name : string, username : string, roles : [Role], password: string}} form
                  * @returns {Promise}
                  */
                 createAction : async function(form) {
-                    let user = new User(null, form.name, form.username, form.roles);
+                    let user = new User(null, form.name, form.username, form.roles, null, false, form.password);
                     return await user.createAndRefreshWithRelations();
                 },
             }
